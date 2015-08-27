@@ -119,35 +119,43 @@
   </resheader>
   <data name="AddAppBarButton.Label" xml:space="preserve">
     <value>add</value>
-  </data>
-  <data name="asflk" xml:space="preserve">
-    <value>fa</value>
+    <comment>Add note button descriptor</comment>
   </data>
   <data name="Header.Text" xml:space="preserve">
     <value>EASY NOTES</value>
+    <comment>App name</comment>
   </data>
   <data name="NavigationFailedExceptionMessage" xml:space="preserve">
     <value>Navigation failed.</value>
   </data>
-  <data name="NewItemDescription" xml:space="preserve">
-    <value>Item Description: Pellentesque porta, mauris quis interdum vehicula, urna sapien ultrices velit, nec venenatis dui odio in augue. Cras posuere, enim a cursus convallis, neque turpis malesuada erat, ut adipiscing neque tortor ac erat.</value>
-  </data>
-  <data name="NewItemTitle" xml:space="preserve">
-    <value>Item Title: {0}</value>
-  </data>
   <data name="Pivot.Title" xml:space="preserve">
     <value>EASY NOTES</value>
+    <comment>App name</comment>
   </data>
   <data name="PivotItem1.Header" xml:space="preserve">
     <value>note</value>
+    <comment>Title of Simple Note pivot</comment>
   </data>
   <data name="PivotItem2.Header" xml:space="preserve">
     <value>todo</value>
+    <comment>Title of Todo pivot</comment>
   </data>
   <data name="SecondaryButton1.Label" xml:space="preserve">
     <value>secondary command 1</value>
   </data>
   <data name="SecondaryButton2.Label" xml:space="preserve">
     <value>secondary command 2</value>
+  </data>
+  <data name="Content.PlaceholderText" xml:space="preserve">
+    <value>note</value>
+    <comment>Placeholder for note's content in textboxes</comment>
+  </data>
+  <data name="SaveAppBarButton.Label" xml:space="preserve">
+    <value>save</value>
+    <comment>Save note button descriptor</comment>
+  </data>
+  <data name="Title.PlaceholderText" xml:space="preserve">
+    <value>title</value>
+    <comment>Placeholder for note's title in textboxes</comment>
   </data>
 </root>

@@ -1,4 +1,5 @@
 ﻿using System;
+
 using System.Collections;
 using System.Linq;
 using System.Diagnostics;
@@ -13,28 +14,27 @@ namespace EasyNotes.DataModel
     {
         static private SQLiteConnection dbConn;
 
-        public const string CREATE_NOTES_TABLE = "CREATE TABLE IF NOT EXISTS SIMPLENOTES (" +
+        private const string CREATE_NOTES_TABLE = "CREATE TABLE IF NOT EXISTS SIMPLENOTES (" +
                "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                "Title VARCHAR(100)," +
-               "Content VARCHAR(500)" +
+               "Content VARCHAR(3000)" +
                ");";
 
-        public const string SELECT_ALL_NOTES = "SELECT * FROM SIMPLENOTES;";
+        private const string SELECT_ALL_SIMPLE_NOTES = "SELECT * FROM SIMPLENOTES;";
 
-        public const string SELECT_NOTE_BY_ID = "SELECT * FROM SIMPLENOTES WHERE ID = ?;";
+        private const string SELECT_SIMPLE_NOTE_BY_ID = "SELECT * FROM SIMPLENOTES WHERE ID = ?;";
+
+        private const string INSERT_SIMPLE_NOTE = "INSERT INTO SIMPLENOTES(Title, Content) VALUES(?, ?)";
 
         public static void CreateDatabase()
         {
             dbConn = new SQLiteConnection("EsayNotesData.db");
             CreateTables();
-            ISQLiteStatement statement = dbConn.Prepare("INSERT INTO SIMPLENOTES(Title, Content) VALUES(?, ?)");
-            statement.Bind(1, "Cose da fare");
-            statement.Bind(2, "Devo fare molte cose");
-            statement.Step();
-            statement.Reset();
-            statement.Bind(1, "Impegno");
-            statement.Bind(2, "Impegnarsi di più");
-            statement.Step();
+            //ISQLiteStatement statement = dbConn.Prepare("INSERT INTO SIMPLENOTES(Title, Content) VALUES(?, ?)");
+            //statement.Reset();
+            //statement.Bind(1, "Impegno");
+            //statement.Bind(2, "Impegnarsi di più");
+            //statement.Step();
         }
 
         private static void CreateTables()
@@ -42,13 +42,16 @@ namespace EasyNotes.DataModel
             dbConn.Prepare(CREATE_NOTES_TABLE).Step();
         }
 
-        public static void InsertNote(AbstractNote note){
-
+        public static void AddSimpleNote(string title, string content){
+            ISQLiteStatement statement = dbConn.Prepare(INSERT_SIMPLE_NOTE);
+            statement.Bind(1, title);
+            statement.Bind(2, content);
+            statement.Step();
         }
 
         public static ObservableCollection<AbstractNote> GetAllNotes()
         {   
-            ISQLiteStatement statement = dbConn.Prepare(SELECT_ALL_NOTES);
+            ISQLiteStatement statement = dbConn.Prepare(SELECT_ALL_SIMPLE_NOTES);
             ObservableCollection<AbstractNote> result = new ObservableCollection<AbstractNote>();
             while (statement.Step() == SQLiteResult.ROW)
             {
@@ -57,9 +60,9 @@ namespace EasyNotes.DataModel
             return result;
         }
 
-        public static AbstractNote GetNoteById(long id)
+        public static SimpleNote GetNoteById(long id)
         {
-            ISQLiteStatement statement = dbConn.Prepare(SELECT_NOTE_BY_ID);
+            ISQLiteStatement statement = dbConn.Prepare(SELECT_SIMPLE_NOTE_BY_ID);
             statement.Bind(1, id);
             SimpleNote note = null;
             while (statement.Step() == SQLiteResult.ROW)

@@ -26,6 +26,7 @@ namespace EasyNotes
 {
     public sealed partial class PivotPage : Page
     {
+        enum PivotItem { SimpleNote, TodoNote, Other};
         private readonly NavigationHelper navigationHelper;
         private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
         private ObservableCollection<AbstractNote> notes = new ObservableCollection<AbstractNote> ();
@@ -69,7 +70,6 @@ namespace EasyNotes
         /// </summary>
         private void SecondPivot_Loaded(object sender, RoutedEventArgs e)
         {   
-
             ToDoNotesList.DataContext = notes;
         }
 
@@ -78,7 +78,7 @@ namespace EasyNotes
         /// </summary>
         private void ThirdPivot_Loaded(object sender, RoutedEventArgs e)
         {
-           // PhotoNotesList.ItemsSource = DataManager.GetAllNotes();
+           //PhotoNotesList.ItemsSource = DataManager.GetAllNotes();
         }
 
         /// <summary>
@@ -97,8 +97,23 @@ namespace EasyNotes
         /// <summary>
         /// Adds an item to the list when the app bar button is clicked.
         /// </summary>
-        private void AddAppBarButton_Click(object sender, RoutedEventArgs e)
+        private void AddNoteBarButton_Click(object sender, RoutedEventArgs e)
         {
+            System.Type type = null;
+            switch (this.pivot.SelectedIndex)
+            {
+                case (int)PivotItem.SimpleNote:
+                    type = typeof(AddSimpleNote);
+                    break;
+                case (int)PivotItem.TodoNote:
+                    break;
+                case (int)PivotItem.Other:
+                    break;
+            }
+            if (type == null || !Frame.Navigate(type))
+            {
+                throw new Exception(this.resourceLoader.GetString("NavigationFailedExceptionMessage"));
+            }
             //string groupName = this.pivot.SelectedIndex == 0 ? AllNotes : AllTodos;
             //var group = this.DefaultViewModel[groupName] as SampleDataGroup;
             //var nextItemId = group.Items.Count + 1;
@@ -124,7 +139,7 @@ namespace EasyNotes
         private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
             long itemId = ((AbstractNote)e.ClickedItem).ID;
-            System.Type type = null;
+            Type type = null;
             if (e.ClickedItem.GetType() == typeof(SimpleNote))
             {
                 type = typeof(SimpleNoteDetailPage);
@@ -162,4 +177,5 @@ namespace EasyNotes
 
         #endregion
     }
+
 }
