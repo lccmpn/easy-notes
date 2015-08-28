@@ -25,6 +25,8 @@ namespace EasyNotes.DataModel
 
         private const string INSERT_SIMPLE_NOTE = "INSERT INTO SIMPLENOTES(Title, Content) VALUES(?, ?)";
 
+        private const string DELETE_SIMPLE_NOTE = "DELETE FROM SIMPLENOTES WHERE ID = ?;";
+
         public static void CreateDatabase()
         {
             dbConn = new SQLiteConnection("EsayNotesData.db");
@@ -67,5 +69,12 @@ namespace EasyNotes.DataModel
             }
             return note;
         }
+
+        public static void DeleteSimpleNote(long id){
+            ISQLiteStatement statement = dbConn.Prepare(DELETE_SIMPLE_NOTE);
+            statement.Bind(1, id);
+            statement.Step();
+        }
+
     }
 }

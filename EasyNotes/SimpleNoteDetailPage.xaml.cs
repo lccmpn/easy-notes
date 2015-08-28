@@ -1,6 +1,7 @@
 ﻿using EasyNotes.Common;
 using EasyNotes.DataModel;
 using System;
+using Windows.UI.Popups;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,7 +33,6 @@ namespace EasyNotes
         public SimpleNoteDetailPage()
         {
             this.InitializeComponent();
-
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
@@ -102,5 +102,28 @@ namespace EasyNotes
         }
 
         #endregion
+
+
+
+        private async void DeleteAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            var messageDialog = new MessageDialog("Do you really want to delete this note?");
+            messageDialog.Commands.Add(new UICommand("Yes", new UICommandInvokedHandler(this.CommandInvokedHandler)));
+            messageDialog.Commands.Add(new UICommand("No", new UICommandInvokedHandler(this.CommandInvokedHandler)));
+            // Show the message dialog
+            await messageDialog.ShowAsync();
+        }
+
+        private void CommandInvokedHandler(IUICommand command)
+        {
+            if (command.Label.Equals("Yes"))
+            {
+                DataManager.DeleteSimpleNote(this.note.ID);
+                if(Frame.CanGoBack){
+                    Frame.GoBack();
+                }
+            }
+        }
     }
 }

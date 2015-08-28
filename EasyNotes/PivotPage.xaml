@@ -29,12 +29,9 @@
                 <ListView
                     x:Name="SimpleNotesList"
                     IsItemClickEnabled="True"
-                    IsSwipeEnabled="true"
-                    SelectionMode="None"
                     ItemClick="ItemView_ItemClick"
                     ItemsSource="{Binding}"
                     ContinuumNavigationTransitionInfo.ExitElementContainer="True" 
-                    Holding="SimpleNotesList_Holding" 
                     SelectionChanged="SimpleNotesList_SelectionChanged">
                     <ListView.ItemTemplate>
                         <DataTemplate>
@@ -108,12 +105,9 @@
     </Grid>
 
     <Page.BottomAppBar>
-        <CommandBar>
-            <AppBarButton x:Uid="AddAppBarButton" x:Name="AddAppBarButton" Label="add" Icon="Add" Click="AddNoteBarButton_Click" />
-            <CommandBar.SecondaryCommands>
-                <AppBarButton x:Uid="SecondaryButton1" x:Name="SecondaryButton1" Label="secondary command 1" />
-                <AppBarButton x:Uid="SecondaryButton2" x:Name="SecondaryButton2" Label="secondary command 2" />
-            </CommandBar.SecondaryCommands>
+        <CommandBar x:Name="CommandBar">
+            <AppBarButton x:Uid="MultipleSelectionAppBarButton" x:Name="MultipleSelectionAppBarButton" Icon="SelectAll" Click="MultipleSelectionAppBarButton_Click"/>
+            <AppBarButton x:Uid="AddAppBarButton" x:Name="AddAppBarButton" Icon="Add" Click="AddNoteBarButton_Click" />
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

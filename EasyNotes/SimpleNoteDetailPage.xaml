@@ -49,4 +49,11 @@
                 Margin="0,0,19,0"/>
         </Grid>
     </Grid>
+
+    <Page.BottomAppBar>
+        <CommandBar x:Name="CommandBar">
+            <AppBarButton x:Uid="DeleteAppBarButton" x:Name="DeleteAppBarButton" Icon="Delete" Click="DeleteAppBarButton_Click" />
+        </CommandBar>
+    </Page.BottomAppBar>
+
 </Page>

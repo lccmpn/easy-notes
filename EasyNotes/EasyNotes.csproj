@@ -116,6 +116,7 @@
     <Compile Include="SimpleNoteDetailPage.xaml.cs">
       <DependentUpon>SimpleNoteDetailPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utility\AppResourcesLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

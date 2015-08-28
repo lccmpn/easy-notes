@@ -1,5 +1,6 @@
 ﻿using EasyNotes.Common;
 using EasyNotes.DataModel;
+using EasyNotes.Utility;
 using Windows.Phone.UI.Input;
 using System.Diagnostics;
 using System;
@@ -29,8 +30,8 @@ namespace EasyNotes
     {
         enum PivotItem { SimpleNote, TodoNote, PhotoNote };
         private readonly NavigationHelper navigationHelper;
-        private readonly ResourceLoader errorsResourceLoader = ResourceLoader.GetForCurrentView("Errors");
         private ObservableCollection<AbstractNote> notes = new ObservableCollection<AbstractNote>();
+        private const int DELETE_APP_BAR_BUTTON_POSITION = 0;
         //private HashSet<AbstractNote> selectedNotes = new HashSet<AbstractNote>();
 
         public PivotPage()
@@ -64,7 +65,7 @@ namespace EasyNotes
             }
             if (SimpleNotesList.SelectionMode.Equals(ListViewSelectionMode.Multiple))
             {
-                SimpleNotesList.SelectionMode = ListViewSelectionMode.Single;
+                UnsetMultipleSelection();
                 e.Handled = true;
             }
         }
@@ -133,8 +134,12 @@ namespace EasyNotes
             }
             if (type == null || !Frame.Navigate(type))
             {
-                throw new Exception(this.errorsResourceLoader.GetString("NavigationFailedExceptionMessage"));
+                throw new Exception(AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "NavigationFailedExceptionMessage"));
             }
+            if(IsMultipleSelectionenable()){
+                UnsetMultipleSelection();
+            }
+            
             //// Scroll the new item into view.
             //var container = this.pivot.ContainerFromIndex(this.pivot.SelectedIndex) as ContentControl;
             //var listView = container.ContentTemplateRoot as ListView;
@@ -146,8 +151,6 @@ namespace EasyNotes
         /// </summary>
         private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (SimpleNotesList.SelectionMode.Equals(ListViewSelectionMode.Single))
-            {
                 long itemId = ((AbstractNote)e.ClickedItem).ID;
                 Type type = null;
                 switch (this.pivot.SelectedIndex)
@@ -162,18 +165,13 @@ namespace EasyNotes
                 }
                 if (type == null || !Frame.Navigate(type, itemId))
                 {
-                    throw new Exception(this.errorsResourceLoader.GetString("NavigationFailedExceptionMessage"));
+                    throw new Exception(AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "NavigationFailedExceptionMessage"));
                 }
-            }
+            
             //else
             //{
             //    Debug.WriteLine(SimpleNotesList.SelectedItems.);
             //}
-        }
-
-        private void SimpleNotesList_Holding(object sender, HoldingRoutedEventArgs e)
-        {
-            SimpleNotesList.SelectionMode = ListViewSelectionMode.Multiple;
         }
 
         #region NavigationHelper registration
@@ -206,13 +204,66 @@ namespace EasyNotes
 
         private void SimpleNotesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Debug.WriteLine(e.AddedItems.Count);
             if (e.AddedItems.Count == 0)
             {
-                SimpleNotesList.SelectionMode = ListViewSelectionMode.Single;
+               // UnsetMultipleSelection();
             }
         }
 
-    }
+        private void MultipleSelectionAppBarButton_Click(object sender, RoutedEventArgs e)
+        {   
+                SetMultipleSelection();
+        }
 
+        private void DeleteAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SimpleNotesList.SelectedItems.Count > 0)
+            {
+                foreach(SimpleNote note in SimpleNotesList.SelectedItems){
+                    this.notes.Remove(note);
+                    DataManager.DeleteSimpleNote(note.ID);
+                    SimpleNotesList.SelectedItems.Clear();
+                }
+                UnsetMultipleSelection();
+            }
+        }
+
+        private void SetMultipleSelection()
+        {
+            if (notes.Count > 0 && !IsMultipleSelectionenable())
+            {
+                this.SimpleNotesList.SelectionMode = ListViewSelectionMode.Multiple;
+                this.SimpleNotesList.IsItemClickEnabled = false;
+                // Add separator.
+                CommandBar.PrimaryCommands.Insert(DELETE_APP_BAR_BUTTON_POSITION, new AppBarSeparator());
+                // Create delete button.
+                AppBarButton deleteButton = new AppBarButton();
+                deleteButton.Icon = new SymbolIcon(Symbol.Delete);
+                deleteButton.Label = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DeleteAppBarButtonLabel");
+                deleteButton.Click += DeleteAppBarButton_Click;
+                // Add delete button.
+                CommandBar.PrimaryCommands.Insert(DELETE_APP_BAR_BUTTON_POSITION, deleteButton);
+            }
+        }
+
+        private void UnsetMultipleSelection()
+        {
+            this.SimpleNotesList.SelectionMode = ListViewSelectionMode.Single;
+            this.SimpleNotesList.IsItemClickEnabled = true;
+            if (CommandBar != null)
+            {
+                AppBarButton b = CommandBar.PrimaryCommands[DELETE_APP_BAR_BUTTON_POSITION] as AppBarButton;
+                b.Click -= DeleteAppBarButton_Click;
+                // Remove AppBarButton.
+                CommandBar.PrimaryCommands.RemoveAt(DELETE_APP_BAR_BUTTON_POSITION);
+                // Remove AppBarSeparator.
+                CommandBar.PrimaryCommands.RemoveAt(DELETE_APP_BAR_BUTTON_POSITION);
+            }
+        }
+
+        private bool IsMultipleSelectionenable()
+        {
+            return SimpleNotesList.SelectionMode == ListViewSelectionMode.Multiple;
+        }
+    }
 }

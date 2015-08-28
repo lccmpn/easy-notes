@@ -1,6 +1,6 @@
 ﻿using EasyNotes.Common;
 using System;
-using Windows.ApplicationModel.Resources;
+using EasyNotes.Utility;
 using EasyNotes.DataModel;
 using System.Collections.Generic;
 using System.IO;
@@ -30,7 +30,6 @@ namespace EasyNotes
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
-        private const string DEFAULT_NOTE_TITLE = "no title note";
 
         public AddSimpleNote()
         {
@@ -117,14 +116,14 @@ namespace EasyNotes
             string content = ContentTextBox.Text;
             if (string.IsNullOrEmpty(content))
             {
-                string alertMessage = ResourceLoader.GetForCurrentView("Errors").GetString("EmptyNoteAlert");
+                string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
                 MessageDialog msgbox = new MessageDialog(alertMessage);
                 await msgbox.ShowAsync();
                 return;
             }
             if (string.IsNullOrEmpty(title))
             {
-                title = DEFAULT_NOTE_TITLE;
+                title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
             }
             DataManager.AddSimpleNote(title, content);
             if (Frame.CanGoBack)
