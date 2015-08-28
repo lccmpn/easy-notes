@@ -1,5 +1,4 @@
 ﻿using System;
-
 using System.Collections;
 using System.Linq;
 using System.Diagnostics;
@@ -30,11 +29,6 @@ namespace EasyNotes.DataModel
         {
             dbConn = new SQLiteConnection("EsayNotesData.db");
             CreateTables();
-            //ISQLiteStatement statement = dbConn.Prepare("INSERT INTO SIMPLENOTES(Title, Content) VALUES(?, ?)");
-            //statement.Reset();
-            //statement.Bind(1, "Impegno");
-            //statement.Bind(2, "Impegnarsi di più");
-            //statement.Step();
         }
 
         private static void CreateTables()
@@ -42,7 +36,8 @@ namespace EasyNotes.DataModel
             dbConn.Prepare(CREATE_NOTES_TABLE).Step();
         }
 
-        public static void AddSimpleNote(string title, string content){
+        public static void AddSimpleNote(string title, string content)
+        {
             ISQLiteStatement statement = dbConn.Prepare(INSERT_SIMPLE_NOTE);
             statement.Bind(1, title);
             statement.Bind(2, content);
@@ -50,7 +45,7 @@ namespace EasyNotes.DataModel
         }
 
         public static ObservableCollection<AbstractNote> GetAllNotes()
-        {   
+        {
             ISQLiteStatement statement = dbConn.Prepare(SELECT_ALL_SIMPLE_NOTES);
             ObservableCollection<AbstractNote> result = new ObservableCollection<AbstractNote>();
             while (statement.Step() == SQLiteResult.ROW)
@@ -72,6 +67,5 @@ namespace EasyNotes.DataModel
             }
             return note;
         }
-
     }
 }

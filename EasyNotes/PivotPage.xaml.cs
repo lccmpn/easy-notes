@@ -1,5 +1,6 @@
 ﻿using EasyNotes.Common;
 using EasyNotes.DataModel;
+using Windows.Phone.UI.Input;
 using System.Diagnostics;
 using System;
 using System.Collections.Generic;
@@ -26,10 +27,11 @@ namespace EasyNotes
 {
     public sealed partial class PivotPage : Page
     {
-        enum PivotItem { SimpleNote, TodoNote, Other};
+        enum PivotItem { SimpleNote, TodoNote, PhotoNote };
         private readonly NavigationHelper navigationHelper;
-        private readonly ResourceLoader resourceLoader = ResourceLoader.GetForCurrentView("Resources");
-        private ObservableCollection<AbstractNote> notes = new ObservableCollection<AbstractNote> ();
+        private readonly ResourceLoader errorsResourceLoader = ResourceLoader.GetForCurrentView("Errors");
+        private ObservableCollection<AbstractNote> notes = new ObservableCollection<AbstractNote>();
+        //private HashSet<AbstractNote> selectedNotes = new HashSet<AbstractNote>();
 
         public PivotPage()
         {
@@ -46,6 +48,25 @@ namespace EasyNotes
         public NavigationHelper NavigationHelper
         {
             get { return this.navigationHelper; }
+        }
+
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
+        }
+
+        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
+        {
+            Frame frame = Window.Current.Content as Frame;
+            if (frame == null)
+            {
+                return;
+            }
+            if (SimpleNotesList.SelectionMode.Equals(ListViewSelectionMode.Multiple))
+            {
+                SimpleNotesList.SelectionMode = ListViewSelectionMode.Single;
+                e.Handled = true;
+            }
         }
 
         /// <summary>
@@ -69,7 +90,7 @@ namespace EasyNotes
         /// Loads the content for the second pivot item when it is scrolled into view.
         /// </summary>
         private void SecondPivot_Loaded(object sender, RoutedEventArgs e)
-        {   
+        {
             ToDoNotesList.DataContext = notes;
         }
 
@@ -78,7 +99,7 @@ namespace EasyNotes
         /// </summary>
         private void ThirdPivot_Loaded(object sender, RoutedEventArgs e)
         {
-           //PhotoNotesList.ItemsSource = DataManager.GetAllNotes();
+            //PhotoNotesList.ItemsSource = DataManager.GetAllNotes();
         }
 
         /// <summary>
@@ -107,26 +128,13 @@ namespace EasyNotes
                     break;
                 case (int)PivotItem.TodoNote:
                     break;
-                case (int)PivotItem.Other:
+                case (int)PivotItem.PhotoNote:
                     break;
             }
             if (type == null || !Frame.Navigate(type))
             {
-                throw new Exception(this.resourceLoader.GetString("NavigationFailedExceptionMessage"));
+                throw new Exception(this.errorsResourceLoader.GetString("NavigationFailedExceptionMessage"));
             }
-            //string groupName = this.pivot.SelectedIndex == 0 ? AllNotes : AllTodos;
-            //var group = this.DefaultViewModel[groupName] as SampleDataGroup;
-            //var nextItemId = group.Items.Count + 1;
-            //var newItem = new SampleDataItem(
-            //    string.Format(CultureInfo.InvariantCulture, "Group-{0}-Item-{1}", this.pivot.SelectedIndex + 1, nextItemId),
-            //    string.Format(CultureInfo.CurrentCulture, this.resourceLoader.GetString("NewItemTitle"), nextItemId),
-            //    string.Empty,
-            //    string.Empty,
-            //    this.resourceLoader.GetString("NewItemDescription"),
-            //    string.Empty);
-
-            //group.Items.Add(newItem);
-
             //// Scroll the new item into view.
             //var container = this.pivot.ContainerFromIndex(this.pivot.SelectedIndex) as ContentControl;
             //var listView = container.ContentTemplateRoot as ListView;
@@ -138,16 +146,34 @@ namespace EasyNotes
         /// </summary>
         private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            long itemId = ((AbstractNote)e.ClickedItem).ID;
-            Type type = null;
-            if (e.ClickedItem.GetType() == typeof(SimpleNote))
+            if (SimpleNotesList.SelectionMode.Equals(ListViewSelectionMode.Single))
             {
-                type = typeof(SimpleNoteDetailPage);
+                long itemId = ((AbstractNote)e.ClickedItem).ID;
+                Type type = null;
+                switch (this.pivot.SelectedIndex)
+                {
+                    case (int)PivotItem.SimpleNote:
+                        type = typeof(SimpleNoteDetailPage);
+                        break;
+                    case (int)PivotItem.TodoNote:
+                        break;
+                    case (int)PivotItem.PhotoNote:
+                        break;
+                }
+                if (type == null || !Frame.Navigate(type, itemId))
+                {
+                    throw new Exception(this.errorsResourceLoader.GetString("NavigationFailedExceptionMessage"));
+                }
             }
-            if (type == null || !Frame.Navigate(type, itemId))
-            {
-                throw new Exception(this.resourceLoader.GetString("NavigationFailedExceptionMessage"));
-            }
+            //else
+            //{
+            //    Debug.WriteLine(SimpleNotesList.SelectedItems.);
+            //}
+        }
+
+        private void SimpleNotesList_Holding(object sender, HoldingRoutedEventArgs e)
+        {
+            SimpleNotesList.SelectionMode = ListViewSelectionMode.Multiple;
         }
 
         #region NavigationHelper registration
@@ -167,6 +193,7 @@ namespace EasyNotes
         /// handlers that cannot cancel the navigation request.</param>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            HardwareButtons.BackPressed += HardwareButtons_BackPressed;
             this.navigationHelper.OnNavigatedTo(e);
         }
 
@@ -176,6 +203,16 @@ namespace EasyNotes
         }
 
         #endregion
+
+        private void SimpleNotesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Debug.WriteLine(e.AddedItems.Count);
+            if (e.AddedItems.Count == 0)
+            {
+                SimpleNotesList.SelectionMode = ListViewSelectionMode.Single;
+            }
+        }
+
     }
 
 }

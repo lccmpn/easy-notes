@@ -36,6 +36,7 @@ namespace EasyNotes
         public App()
         {
             this.InitializeComponent();
+            
             this.Suspending += this.OnSuspending;
             DataManager.CreateDatabase();
         }

@@ -114,15 +114,16 @@
 
 
         </StackPanel>
-        
+
         <!--TODO: Content should be placed within the following grid-->
         <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,12">
             <Grid >
                 <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <TextBox x:Uid="Title"
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBox 
+                    x:Uid="Title"
                      Grid.Row="0"
                      x:Name="TitleTextBox"
                      Margin="0,6.5,0,0" 
@@ -135,8 +136,8 @@
                      VerticalAlignment="Center"
                      Style="{StaticResource TextBoxStyle1}"
                      />
-            <TextBox 
-                Grid.Row="1"
+                <TextBox 
+                     Grid.Row="1"
                      x:Name="ContentTextBox"
                      x:Uid="Content"
                      Style="{StaticResource TextBoxStyle1}"

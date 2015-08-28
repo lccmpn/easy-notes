@@ -1,5 +1,6 @@
 ﻿using EasyNotes.Common;
 using System;
+using Windows.ApplicationModel.Resources;
 using EasyNotes.DataModel;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +16,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Popups;
 using Windows.UI.Xaml.Navigation;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
@@ -28,11 +30,11 @@ namespace EasyNotes
     {
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private const string DEFAULT_NOTE_TITLE = "no title note";
 
         public AddSimpleNote()
         {
             this.InitializeComponent();
-
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
@@ -109,9 +111,22 @@ namespace EasyNotes
 
         #endregion
 
-        private void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
         {
-            DataManager.AddSimpleNote(TitleTextBox.Text, ContentTextBox.Text);
+            string title = TitleTextBox.Text;
+            string content = ContentTextBox.Text;
+            if (string.IsNullOrEmpty(content))
+            {
+                string alertMessage = ResourceLoader.GetForCurrentView("Errors").GetString("EmptyNoteAlert");
+                MessageDialog msgbox = new MessageDialog(alertMessage);
+                await msgbox.ShowAsync();
+                return;
+            }
+            if (string.IsNullOrEmpty(title))
+            {
+                title = DEFAULT_NOTE_TITLE;
+            }
+            DataManager.AddSimpleNote(title, content);
             if (Frame.CanGoBack)
             {
                 Frame.GoBack();

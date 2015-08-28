@@ -29,9 +29,13 @@
                 <ListView
                     x:Name="SimpleNotesList"
                     IsItemClickEnabled="True"
+                    IsSwipeEnabled="true"
+                    SelectionMode="None"
                     ItemClick="ItemView_ItemClick"
                     ItemsSource="{Binding}"
-                    ContinuumNavigationTransitionInfo.ExitElementContainer="True">
+                    ContinuumNavigationTransitionInfo.ExitElementContainer="True" 
+                    Holding="SimpleNotesList_Holding" 
+                    SelectionChanged="SimpleNotesList_SelectionChanged">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="0,0,0,9.5">
@@ -52,7 +56,7 @@
             <PivotItem
                 x:Uid="PivotItem2"
                 Margin="19,14.5,0,0">
-               <!--Double line list no text wrapping-->
+                <!--Double line list no text wrapping-->
                 <ListView
                     ItemsSource="{Binding}"
                     x:Name="ToDoNotesList"
