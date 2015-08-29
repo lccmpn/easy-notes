@@ -55,5 +55,4 @@
             <AppBarButton x:Uid="DeleteAppBarButton" x:Name="DeleteAppBarButton" Icon="Delete" Click="DeleteAppBarButton_Click" />
         </CommandBar>
     </Page.BottomAppBar>
-
 </Page>

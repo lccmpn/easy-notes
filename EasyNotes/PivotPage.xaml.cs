@@ -32,7 +32,7 @@ namespace EasyNotes
         private readonly NavigationHelper navigationHelper;
         private ObservableCollection<AbstractNote> notes = new ObservableCollection<AbstractNote>();
         private const int DELETE_APP_BAR_BUTTON_POSITION = 0;
-        //private HashSet<AbstractNote> selectedNotes = new HashSet<AbstractNote>();
+        private List<SimpleNote> selectedNotes = new List<SimpleNote>();
 
         public PivotPage()
         {
@@ -202,14 +202,6 @@ namespace EasyNotes
 
         #endregion
 
-        private void SimpleNotesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count == 0)
-            {
-               // UnsetMultipleSelection();
-            }
-        }
-
         private void MultipleSelectionAppBarButton_Click(object sender, RoutedEventArgs e)
         {   
                 SetMultipleSelection();
@@ -219,10 +211,10 @@ namespace EasyNotes
         {
             if (SimpleNotesList.SelectedItems.Count > 0)
             {
-                foreach(SimpleNote note in SimpleNotesList.SelectedItems){
-                    this.notes.Remove(note);
+                foreach (SimpleNote note in SimpleNotesList.SelectedItems.Reverse())
+                {
                     DataManager.DeleteSimpleNote(note.ID);
-                    SimpleNotesList.SelectedItems.Clear();
+                    notes.Remove(note);
                 }
                 UnsetMultipleSelection();
             }
@@ -248,7 +240,7 @@ namespace EasyNotes
 
         private void UnsetMultipleSelection()
         {
-            this.SimpleNotesList.SelectionMode = ListViewSelectionMode.Single;
+            this.SimpleNotesList.SelectionMode = ListViewSelectionMode.None;
             this.SimpleNotesList.IsItemClickEnabled = true;
             if (CommandBar != null)
             {
