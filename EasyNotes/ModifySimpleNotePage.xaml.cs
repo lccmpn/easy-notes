@@ -1,16 +1,13 @@
-﻿using EasyNotes.Common;
-using EasyNotes.DataModel;
-using EasyNotes.Utility;
-using System;
-using Windows.UI.Popups;
+﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
+using EasyNotes.Common;
+using EasyNotes.DataModel;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Windows.Input;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using Windows.Graphics.Display;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -19,30 +16,25 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Pivot Application template is documented at http://go.microsoft.com/fwlink/?LinkID=391641
+// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
 namespace EasyNotes
 {
     /// <summary>
-    /// A page that displays details for a single item within a group.
+    /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class SimpleNoteDetailPage : Page
+    public sealed partial class ModifySimpleNotePage : Page
     {
-        private readonly NavigationHelper navigationHelper;
-        private readonly string deletionAlertMessage;
-        private readonly string deletionConfirm;
-        private readonly string deletionCancel;
+
+        private NavigationHelper navigationHelper;
         private SimpleNoteDetail viewModel;
 
-        public SimpleNoteDetailPage()
+        public ModifySimpleNotePage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
-            this.deletionCancel = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "No");
-            this.deletionConfirm = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "Yes");
-            this.deletionAlertMessage = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "NoteDeletionAlertMessage");
         }
 
         /// <summary>
@@ -110,31 +102,14 @@ namespace EasyNotes
 
         #endregion
 
-        private async void DeleteAppBarButton_Click(object sender, RoutedEventArgs e)
+        private void SaveAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            var messageDialog = new MessageDialog(deletionAlertMessage);
-            messageDialog.Commands.Add(new UICommand(deletionConfirm, new UICommandInvokedHandler(this.CommandInvokedHandler)));
-            messageDialog.Commands.Add(new UICommand(deletionCancel, new UICommandInvokedHandler(this.CommandInvokedHandler)));
-            // Show the message dialog
-            await messageDialog.ShowAsync();
-        }
-
-        private void CommandInvokedHandler(IUICommand command)
-        {
-            if (command.Label.Equals(deletionConfirm))
+            DataManager.UpdateSimpleNote(viewModel.ID, viewModel.Title, viewModel.Content);
+            Debug.WriteLine("Title: " + viewModel.Title);
+            Debug.WriteLine("Content: " + viewModel.Content);
+            if (Frame.CanGoBack)
             {
-                DataManager.DeleteSimpleNote(this.viewModel.ID);
-                if(Frame.CanGoBack){
-                    Frame.GoBack();
-                }
-            }
-        }
-
-        private void ModifyAppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!Frame.Navigate(typeof(ModifySimpleNotePage), viewModel.ID))
-            {
-                throw new Exception(AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "NavigationFailedExceptionMessage"));
+                Frame.GoBack();
             }
         }
     }

@@ -136,8 +136,17 @@
   <data name="Header.Text" xml:space="preserve">
     <value>EASY NOTES</value>
   </data>
+  <data name="ModifyAppBarButton.Label" xml:space="preserve">
+    <value>edit</value>
+  </data>
   <data name="MultipleSelectionAppBarButton.Label" xml:space="preserve">
     <value>mul. selection</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>no</value>
+  </data>
+  <data name="NoteDeletionAlertMessage" xml:space="preserve">
+    <value>Do you really want to delete this note?</value>
   </data>
   <data name="Pivot.Title" xml:space="preserve">
     <value>EASY NOTES</value>
@@ -159,5 +168,8 @@
   </data>
   <data name="Title.PlaceholderText" xml:space="preserve">
     <value>title</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>yes</value>
   </data>
 </root>

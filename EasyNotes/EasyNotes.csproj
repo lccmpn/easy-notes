@@ -82,7 +82,11 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
-    <Page Include="AddSimpleNote.xaml">
+    <Page Include="AddSimpleNotePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ModifySimpleNotePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -96,8 +100,8 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddSimpleNote.xaml.cs">
-      <DependentUpon>AddSimpleNote.xaml</DependentUpon>
+    <Compile Include="AddSimpleNotePage.xaml.cs">
+      <DependentUpon>AddSimpleNotePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -106,9 +110,12 @@
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
-    <Compile Include="DataModel\AbstractNote.cs" />
+    <Compile Include="DataModel\BaseNote.cs" />
     <Compile Include="DataModel\DataManager.cs" />
-    <Compile Include="DataModel\SimpleNote.cs" />
+    <Compile Include="DataModel\SimpleNoteDetail.cs" />
+    <Compile Include="ModifySimpleNotePage.xaml.cs">
+      <DependentUpon>ModifySimpleNotePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PivotPage.xaml.cs">
       <DependentUpon>PivotPage.xaml</DependentUpon>
     </Compile>
@@ -117,6 +124,7 @@
       <DependentUpon>SimpleNoteDetailPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utility\AppResourcesLoader.cs" />
+    <Compile Include="Utility\TimeUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

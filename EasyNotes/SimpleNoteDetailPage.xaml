@@ -53,6 +53,7 @@
     <Page.BottomAppBar>
         <CommandBar x:Name="CommandBar">
             <AppBarButton x:Uid="DeleteAppBarButton" x:Name="DeleteAppBarButton" Icon="Delete" Click="DeleteAppBarButton_Click" />
+            <AppBarButton x:Uid="ModifyAppBarButton" x:Name="ModifyAppBarButton" Icon="Edit" Click="ModifyAppBarButton_Click" />
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

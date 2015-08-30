@@ -26,17 +26,20 @@ namespace EasyNotes
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class AddSimpleNote : Page
+    public sealed partial class AddSimpleNotePage : Page
     {
         private NavigationHelper navigationHelper;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        //private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        private SimpleNoteDetail viewModel;
 
-        public AddSimpleNote()
+        public AddSimpleNotePage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
+            viewModel = new SimpleNoteDetail();
+            this.DataContext = viewModel;
         }
 
         /// <summary>
@@ -51,10 +54,10 @@ namespace EasyNotes
         /// Gets the view model for this <see cref="Page"/>.
         /// This can be changed to a strongly typed view model.
         /// </summary>
-        public ObservableDictionary DefaultViewModel
-        {
-            get { return this.defaultViewModel; }
-        }
+        //public ObservableDictionary DefaultViewModel
+        //{
+        //    get { return this.defaultViewModel; }
+        //}
 
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
@@ -112,20 +115,20 @@ namespace EasyNotes
 
         private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
         {
-            string title = TitleTextBox.Text;
-            string content = ContentTextBox.Text;
-            if (string.IsNullOrEmpty(content))
+            //string title = TitleTextBox.Text;
+            //string content = ContentTextBox.Text;
+            if (string.IsNullOrEmpty(viewModel.Content))
             {
                 string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
                 MessageDialog msgbox = new MessageDialog(alertMessage);
                 await msgbox.ShowAsync();
                 return;
             }
-            if (string.IsNullOrEmpty(title))
+            if (string.IsNullOrEmpty(viewModel.Title))
             {
-                title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
+                viewModel.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
             }
-            DataManager.AddSimpleNote(title, content);
+            DataManager.AddSimpleNote(viewModel.Title, viewModel.Content);
             if (Frame.CanGoBack)
             {
                 Frame.GoBack();
