@@ -1,7 +1,6 @@
 ﻿using EasyNotes.Common;
 using System;
-using EasyNotes.Utility;
-using EasyNotes.Data.Model;
+using EasyNotes.ViewModel;
 using EasyNotes.Database;
 using System.Collections.Generic;
 using System.IO;
@@ -17,8 +16,8 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Popups;
 using Windows.UI.Xaml.Navigation;
+using EasyNotes.Data.Model;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -27,19 +26,17 @@ namespace EasyNotes
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class AddSimpleNotePage : Page
+    public sealed partial class TodoNoteDetailPage : Page
     {
         private NavigationHelper navigationHelper;
-        //private ObservableDictionary defaultViewModel = new ObservableDictionary();
-        private SimpleNote viewModel;
+        private TodoNoteDetailViewModel defaultViewModel;
 
-        public AddSimpleNotePage()
+        public TodoNoteDetailPage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
-
         }
 
         /// <summary>
@@ -49,15 +46,6 @@ namespace EasyNotes
         {
             get { return this.navigationHelper; }
         }
-
-        /// <summary>
-        /// Gets the view model for this <see cref="Page"/>.
-        /// This can be changed to a strongly typed view model.
-        /// </summary>
-        //public ObservableDictionary DefaultViewModel
-        //{
-        //    get { return this.defaultViewModel; }
-        //}
 
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
@@ -72,8 +60,12 @@ namespace EasyNotes
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            viewModel = new SimpleNote();
-            this.DataContext = viewModel;
+            long noteID = (long)e.NavigationParameter;
+            defaultViewModel = new TodoNoteDetailViewModel(DataManager.TodoNoteData.GetNoteById(noteID));
+
+            // TODO Perfect data context association. Anyway, it works.
+            this.DataContext = defaultViewModel.TodoNote;
+            TodoList.DataContext = defaultViewModel.TodoNote.TodoEntries;
         }
 
         /// <summary>
@@ -114,27 +106,5 @@ namespace EasyNotes
         }
 
         #endregion
-
-        private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            //string title = TitleTextBox.Text;
-            //string content = ContentTextBox.Text;
-            if (string.IsNullOrEmpty(viewModel.Content))
-            {
-                string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
-                MessageDialog msgbox = new MessageDialog(alertMessage);
-                await msgbox.ShowAsync();
-                return;
-            }
-            if (string.IsNullOrEmpty(viewModel.Title))
-            {
-                viewModel.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
-            }
-            DataManager.SimpleNoteData.AddNote(viewModel.Title, viewModel.Content);
-            if (Frame.CanGoBack)
-            {
-                Frame.GoBack();
-            }
-        }
     }
 }

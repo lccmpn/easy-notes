@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="EasyNotes.AddSimpleNotePage"
+    x:Class="EasyNotes.AddTodoNotePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:EasyNotes"
@@ -94,9 +94,9 @@
             </Setter>
         </Style>
     </Page.Resources>
-
+    
     <Grid x:Name="LayoutRoot">
-
+        
         <Grid.ChildrenTransitions>
             <TransitionCollection>
                 <EntranceThemeTransition/>
@@ -109,22 +109,9 @@
         </Grid.RowDefinitions>
 
         <!-- Title Panel -->
-        <StackPanel Grid.Row="0" Margin="19,0,0,0">
+        <StackPanel Grid.Row="0" Margin="19,0,19,0">
             <TextBlock x:Uid="Header" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
-        </StackPanel>
-
-        <!--TODO: Content should be placed within the following grid-->
-        <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,12">
-            <Grid >
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBox 
-                    x:Uid="Title"
-                     Grid.Row="0"
-                     Text="{Binding Path=Title, Mode=TwoWay}"
-                     x:Name="TitleTextBox"
+            <TextBox x:Uid="Title" Text="{Binding Path=Title, Mode=TwoWay}" 
                      Margin="0,6.5,0,0" 
                      Height="80"
                      FontSize="40"
@@ -133,28 +120,54 @@
                      Background="Black"
                      BorderBrush="Black"
                      VerticalAlignment="Center"
-                     Style="{StaticResource TextBoxStyle1}"
-                     />
-                <TextBox 
-                     Grid.Row="1"
-                     x:Name="ContentTextBox"
-                     x:Uid="Content"
-                     Text="{Binding Path=Content, Mode=TwoWay}"
-                     Style="{StaticResource TextBoxStyle1}"
-                     VerticalAlignment="Stretch"
-                     Background="Black"
-                     Foreground="White"
-                     BorderBrush="Black"
-                     HorizontalAlignment="Stretch"
-                     TextWrapping="Wrap"
-                     FontSize="25"
-                     />
-            </Grid>
+                     Style="{StaticResource TextBoxStyle1}"/>
+        </StackPanel>
+
+        <!--TODO: Content should be placed within the following grid-->
+        <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
+            <ListView
+                    x:Name="TodoNotesList"
+                    ItemsSource="{Binding}"
+                    ContinuumNavigationTransitionInfo.ExitElementContainer="True">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,0,0,9.5" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="45"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Column="0"
+                                      IsChecked="{Binding Path=IsDone, Mode=TwoWay}"/>
+                                      
+                            <TextBox
+                                Grid.Column="1"
+                                    Text="{Binding Path=Content, Mode=TwoWay}"
+                                    TextWrapping="Wrap"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Center"
+                                    Pivot.SlideInAnimationGroup="1"
+                                    Style="{StaticResource TextBoxStyle1}"
+                                    Foreground="White"
+                                    Background="Black"
+                                    BorderBrush="Black"
+                                    FontSize="25"
+                                    Margin="0,0,19,0"/>
+                            
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </Grid>
     </Grid>
     <Page.BottomAppBar>
         <CommandBar>
             <AppBarButton x:Uid="SaveAppBarButton" x:Name="SaveAppBarButton" Icon="Save" Click="SaveNoteBarButton_Click" />
+            <AppBarButton x:Uid="AddAppBarButton" x:Name="AddAppBarButton" Icon="Add" Click="AddAppBarButton_Click" />
         </CommandBar>
     </Page.BottomAppBar>
 </Page>

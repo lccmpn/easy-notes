@@ -3,7 +3,8 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using EasyNotes.Common;
-using EasyNotes.DataModel;
+using EasyNotes.Data.Model;
+using EasyNotes.Database;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
@@ -16,8 +17,6 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
-
 namespace EasyNotes
 {
     /// <summary>
@@ -27,7 +26,7 @@ namespace EasyNotes
     {
 
         private NavigationHelper navigationHelper;
-        private SimpleNoteDetail viewModel;
+        private SimpleNote viewModel;
 
         public ModifySimpleNotePage()
         {
@@ -58,7 +57,7 @@ namespace EasyNotes
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            viewModel = (SimpleNoteDetail)DataManager.GetNoteById((long)e.NavigationParameter);
+            viewModel = (SimpleNote)DataManager.SimpleNoteData.GetNoteById((long)e.NavigationParameter);
             this.DataContext = viewModel;
         }
 
@@ -104,9 +103,7 @@ namespace EasyNotes
 
         private void SaveAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            DataManager.UpdateSimpleNote(viewModel.ID, viewModel.Title, viewModel.Content);
-            Debug.WriteLine("Title: " + viewModel.Title);
-            Debug.WriteLine("Content: " + viewModel.Content);
+            DataManager.SimpleNoteData.UpdateNote(viewModel.ID, viewModel.Title, viewModel.Content);
             if (Frame.CanGoBack)
             {
                 Frame.GoBack();

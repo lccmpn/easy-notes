@@ -86,6 +86,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="AddTodoNotePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ModifySimpleNotePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -98,10 +102,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="TodoNoteDetailPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddSimpleNotePage.xaml.cs">
       <DependentUpon>AddSimpleNotePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AddTodoNotePage.xaml.cs">
+      <DependentUpon>AddTodoNotePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -110,9 +121,11 @@
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
-    <Compile Include="DataModel\BaseNote.cs" />
-    <Compile Include="DataModel\DataManager.cs" />
-    <Compile Include="DataModel\SimpleNoteDetail.cs" />
+    <Compile Include="Data\Model\BaseModel.cs" />
+    <Compile Include="Data\Model\BaseNote.cs" />
+    <Compile Include="Data\Database\DataManager.cs" />
+    <Compile Include="Data\Model\SimpleNote.cs" />
+    <Compile Include="Data\Model\TodoNote.cs" />
     <Compile Include="ModifySimpleNotePage.xaml.cs">
       <DependentUpon>ModifySimpleNotePage.xaml</DependentUpon>
     </Compile>
@@ -123,8 +136,15 @@
     <Compile Include="SimpleNoteDetailPage.xaml.cs">
       <DependentUpon>SimpleNoteDetailPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TodoNoteDetailPage.xaml.cs">
+      <DependentUpon>TodoNoteDetailPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utility\AppResourcesLoader.cs" />
     <Compile Include="Utility\TimeUtil.cs" />
+    <Compile Include="ViewModel\AddTodoNoteViewModel.cs" />
+    <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="ViewModel\SimpleNoteDetailViewModel.cs" />
+    <Compile Include="ViewModel\TodoNoteDetailViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -171,6 +191,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>

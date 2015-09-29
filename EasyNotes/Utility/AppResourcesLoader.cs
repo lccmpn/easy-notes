@@ -10,9 +10,9 @@ namespace EasyNotes.Utility
     public enum StringResources { RESOURCES, ERRORS };
 
     class AppResourcesLoader
-    {   
+    {
         public static string LoadStringResource(StringResources path, string name)
-        {      
+        {
             string resourcePath = "";
             switch (path)
             {

@@ -1,5 +1,6 @@
 ﻿using EasyNotes.Common;
-using EasyNotes.DataModel;
+using EasyNotes.Data.Model;
+using EasyNotes.Database;
 using EasyNotes.Utility;
 using Windows.Phone.UI.Input;
 using System.Diagnostics;
@@ -30,13 +31,10 @@ namespace EasyNotes
     {
         private enum PivotItem { SimpleNote, TodoNote, PhotoNote };
         private readonly NavigationHelper navigationHelper;
-        private ObservableCollection<BaseNote> viewModel;
+        private ObservableDictionary viewModels = new ObservableDictionary();
         private const int DELETE_APP_BAR_BUTTON_POSITION = 0;
-
-        public ObservableCollection<BaseNote> ViewModel
-        {
-            get { return this.viewModel; }
-        }
+        private const string SIMPLE_NOTE = "SimpleNoteData";
+        private const string TODO_NOTE = "TodoNoteData";
 
         public PivotPage()
         {
@@ -45,15 +43,8 @@ namespace EasyNotes
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
-            viewModel = new ObservableCollection<BaseNote>();
-            SimpleNotesList.DataContext = viewModel;
-            ToDoNotesList.DataContext = viewModel;
-            PhotoNotesList.DataContext = viewModel;
         }
 
-        /// <summary>
-        /// Gets the <see cref="NavigationHelper"/> associated with this <see cref="Page"/>.
-        /// </summary>
         public NavigationHelper NavigationHelper
         {
             get { return this.navigationHelper; }
@@ -91,17 +82,8 @@ namespace EasyNotes
         /// session. The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            UpdateViewModel(DataManager.GetAllSimpleNotes());
-        }
-
-        private void UpdateViewModel(ObservableCollection<BaseNote> list)
-        {
-            viewModel.Clear();
-            foreach (BaseNote note in list)
-            {
-                viewModel.Add(note);
-            }
-            
+            viewModels[SIMPLE_NOTE] = DataManager.SimpleNoteData.GetAllNotes();
+            SimpleNotesList.DataContext = viewModels[SIMPLE_NOTE];
         }
 
         /// <summary>
@@ -109,7 +91,8 @@ namespace EasyNotes
         /// </summary>
         private void SecondPivot_Loaded(object sender, RoutedEventArgs e)
         {
-
+            viewModels[TODO_NOTE] = DataManager.TodoNoteData.GetAllNotes();
+            ToDoNotesList.DataContext = viewModels[TODO_NOTE];
         }
 
         /// <summary>
@@ -145,6 +128,7 @@ namespace EasyNotes
                     type = typeof(AddSimpleNotePage);
                     break;
                 case (int)PivotItem.TodoNote:
+                    type = typeof(AddTodoNotePage);
                     break;
                 case (int)PivotItem.PhotoNote:
                     break;
@@ -175,6 +159,7 @@ namespace EasyNotes
                         type = typeof(SimpleNoteDetailPage);
                         break;
                     case (int)PivotItem.TodoNote:
+                        type = typeof(TodoNoteDetailPage);
                         break;
                     case (int)PivotItem.PhotoNote:
                         break;
@@ -237,8 +222,9 @@ namespace EasyNotes
             {
                 foreach (BaseNote note in SimpleNotesList.SelectedItems.Reverse())
                 {
-                    DataManager.DeleteSimpleNote(note.ID);
-                    viewModel.Remove(note);
+                    DataManager.SimpleNoteData.DeleteNote(note.ID);
+                    ObservableCollection<BaseNote> notes = (ObservableCollection<BaseNote>)viewModels[SIMPLE_NOTE];
+                    notes.Remove(note);
                 }
                 UnsetMultipleSelection();
             }
@@ -246,7 +232,7 @@ namespace EasyNotes
 
         private void SetMultipleSelection()
         {
-            if (viewModel.Count > 0 && !IsMultipleSelectionenable())
+            if (((ObservableCollection<BaseNote>)viewModels[SIMPLE_NOTE]).Count > 0 && !IsMultipleSelectionenable())
             {
                 this.SimpleNotesList.SelectionMode = ListViewSelectionMode.Multiple;
                 this.SimpleNotesList.IsItemClickEnabled = false;

@@ -1,8 +1,6 @@
 ﻿using EasyNotes.Common;
 using System;
-using EasyNotes.Utility;
-using EasyNotes.Data.Model;
-using EasyNotes.Database;
+using EasyNotes.ViewModel;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,8 +15,10 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Popups;
 using Windows.UI.Xaml.Navigation;
+using EasyNotes.Utility;
+using Windows.UI.Popups;
+using EasyNotes.Database;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -27,19 +27,22 @@ namespace EasyNotes
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class AddSimpleNotePage : Page
+    public sealed partial class AddTodoNotePage : Page
     {
         private NavigationHelper navigationHelper;
-        //private ObservableDictionary defaultViewModel = new ObservableDictionary();
-        private SimpleNote viewModel;
+        private AddTodoNoteViewModel viewModel;
 
-        public AddSimpleNotePage()
+        public AddTodoNotePage()
         {
             this.InitializeComponent();
+
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
-
+            viewModel = new AddTodoNoteViewModel();
+            this.DataContext = viewModel.TodoNote;
+            viewModel.TodoNote.AddEntry("", false);
+            TodoNotesList.DataContext = viewModel.TodoNote.TodoEntries;
         }
 
         /// <summary>
@@ -50,14 +53,6 @@ namespace EasyNotes
             get { return this.navigationHelper; }
         }
 
-        /// <summary>
-        /// Gets the view model for this <see cref="Page"/>.
-        /// This can be changed to a strongly typed view model.
-        /// </summary>
-        //public ObservableDictionary DefaultViewModel
-        //{
-        //    get { return this.defaultViewModel; }
-        //}
 
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
@@ -72,8 +67,6 @@ namespace EasyNotes
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            viewModel = new SimpleNote();
-            this.DataContext = viewModel;
         }
 
         /// <summary>
@@ -86,6 +79,35 @@ namespace EasyNotes
         /// serializable state.</param>
         private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
+        }
+
+        private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            //string title = TitleTextBox.Text;
+            //string content = ContentTextBox.Text;
+            if (viewModel.TodoNote.TodoEntries.Count == 0)
+            {
+                string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
+                MessageDialog msgbox = new MessageDialog(alertMessage);
+                await msgbox.ShowAsync();
+                return;
+            }
+            if (string.IsNullOrEmpty(viewModel.TodoNote.Title))
+            {
+                viewModel.TodoNote.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
+            }
+            for (int i = viewModel.TodoNote.TodoEntries.Count -1; i >= 0; i--)
+            {   
+                if (string.IsNullOrEmpty(viewModel.TodoNote.TodoEntries[i].Content))
+                {
+                    viewModel.TodoNote.TodoEntries.Remove(viewModel.TodoNote.TodoEntries[i]);
+                }
+            }
+            DataManager.TodoNoteData.AddNote(viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
         }
 
         #region NavigationHelper registration
@@ -115,26 +137,9 @@ namespace EasyNotes
 
         #endregion
 
-        private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
+        private void AddAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            //string title = TitleTextBox.Text;
-            //string content = ContentTextBox.Text;
-            if (string.IsNullOrEmpty(viewModel.Content))
-            {
-                string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
-                MessageDialog msgbox = new MessageDialog(alertMessage);
-                await msgbox.ShowAsync();
-                return;
-            }
-            if (string.IsNullOrEmpty(viewModel.Title))
-            {
-                viewModel.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
-            }
-            DataManager.SimpleNoteData.AddNote(viewModel.Title, viewModel.Content);
-            if (Frame.CanGoBack)
-            {
-                Frame.GoBack();
-            }
+            viewModel.TodoNote.AddEntry("", false);
         }
     }
 }

@@ -152,10 +152,13 @@
     <value>EASY NOTES</value>
   </data>
   <data name="PivotItem1.Header" xml:space="preserve">
-    <value>first</value>
+    <value>note</value>
   </data>
   <data name="PivotItem2.Header" xml:space="preserve">
-    <value>second</value>
+    <value>todo</value>
+  </data>
+  <data name="PivotItem3.Header" xml:space="preserve">
+    <value>photo</value>
   </data>
   <data name="SaveAppBarButton.Label" xml:space="preserve">
     <value>save</value>

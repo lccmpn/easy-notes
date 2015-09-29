@@ -1,5 +1,6 @@
 ﻿using EasyNotes.Common;
-using EasyNotes.DataModel;
+using EasyNotes.Data.Model;
+using EasyNotes.Database;
 using EasyNotes.Utility;
 using System;
 using Windows.UI.Popups;
@@ -12,6 +13,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics.Display;
 using Windows.UI.Xaml;
+using EasyNotes.ViewModel;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
@@ -19,20 +21,15 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Pivot Application template is documented at http://go.microsoft.com/fwlink/?LinkID=391641
-
 namespace EasyNotes
 {
-    /// <summary>
-    /// A page that displays details for a single item within a group.
-    /// </summary>
     public sealed partial class SimpleNoteDetailPage : Page
     {
         private readonly NavigationHelper navigationHelper;
         private readonly string deletionAlertMessage;
         private readonly string deletionConfirm;
         private readonly string deletionCancel;
-        private SimpleNoteDetail viewModel;
+        private SimpleNoteDetailViewModel viewModel;
 
         public SimpleNoteDetailPage()
         {
@@ -43,41 +40,21 @@ namespace EasyNotes
             this.deletionCancel = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "No");
             this.deletionConfirm = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "Yes");
             this.deletionAlertMessage = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "NoteDeletionAlertMessage");
+            viewModel = new SimpleNoteDetailViewModel();
         }
 
-        /// <summary>
-        /// Gets the <see cref="NavigationHelper"/> associated with this <see cref="Page"/>.
-        /// </summary>
         public NavigationHelper NavigationHelper
         {
             get { return this.navigationHelper; }
         }
 
-        /// <summary>
-        /// Populates the page with content passed during navigation. Any saved state is also
-        /// provided when recreating a page from a prior session.
-        /// </summary>
-        /// <param name="sender">
-        /// The source of the event; typically <see cref="NavigationHelper"/>.
-        /// </param>
-        /// <param name="e">Event data that provides both the navigation parameter passed to
-        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
-        /// a dictionary of state preserved by this page during an earlier
-        /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            viewModel = (SimpleNoteDetail)DataManager.GetNoteById((long)e.NavigationParameter);
-            this.DataContext = viewModel;
+            SimpleNote note = (SimpleNote)DataManager.SimpleNoteData.GetNoteById((long)e.NavigationParameter);
+            viewModel.SimpleNote = note;
+            this.DataContext = viewModel.SimpleNote;
         }
 
-        /// <summary>
-        /// Preserves state associated with this page in case the application is suspended or the
-        /// page is discarded from the navigation cache.  Values must conform to the serialization
-        /// requirements of <see cref="SuspensionManager.SessionState"/>.
-        /// </summary>
-        /// <param name="sender">The source of the event; typically <see cref="NavigationHelper"/>.</param>
-        /// <param name="e">Event data that provides an empty dictionary to be populated with
-        /// serializable state.</param>
         private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             // TODO: Save the unique state of the page here.
@@ -123,7 +100,7 @@ namespace EasyNotes
         {
             if (command.Label.Equals(deletionConfirm))
             {
-                DataManager.DeleteSimpleNote(this.viewModel.ID);
+                DataManager.SimpleNoteData.DeleteNote(this.viewModel.SimpleNote.ID);
                 if(Frame.CanGoBack){
                     Frame.GoBack();
                 }
@@ -132,7 +109,7 @@ namespace EasyNotes
 
         private void ModifyAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!Frame.Navigate(typeof(ModifySimpleNotePage), viewModel.ID))
+            if (!Frame.Navigate(typeof(ModifySimpleNotePage), viewModel.SimpleNote.ID))
             {
                 throw new Exception(AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "NavigationFailedExceptionMessage"));
             }

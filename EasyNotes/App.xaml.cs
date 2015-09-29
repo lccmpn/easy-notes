@@ -1,6 +1,7 @@
 ﻿using EasyNotes.Common;
-using EasyNotes.DataModel;
+using EasyNotes.Data.Model;
 using System;
+using EasyNotes.Database;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

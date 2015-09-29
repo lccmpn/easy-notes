@@ -10,7 +10,7 @@ namespace EasyNotes.Utility
     {
         public static String GetTimestamp()
         {
-            return DateTime.Now.ToString("yyyyMMddHHmmssffff");
+            return DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss");
         }
     }
 }

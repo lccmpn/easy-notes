@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EasyNotes.DataModel
+namespace EasyNotes.Data.Model
 {
-    class SimpleNoteDetail : BaseNote
+    public class SimpleNote : BaseNote
     {
         private string content;
 
-        public SimpleNoteDetail() : base() { }
+        public SimpleNote() : base() { }
 
-        public SimpleNoteDetail(long id, string title, string content)
+        public SimpleNote(long id, string title, string content)
             : base(id, title)
         {
             this.content = content;

@@ -1,20 +1,20 @@
 ﻿using System;
+using EasyNotes.Data;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EasyNotes.DataModel
+namespace EasyNotes.Data.Model
 {
-    public class BaseNote : INotifyPropertyChanged
+    public class BaseNote : BaseModel
     {
         private string title;
-        public long ID { get; private set; }
 
-        public BaseNote() { }
-
-        public BaseNote(long id, string title)
+        protected BaseNote() : base() { }
+        
+        public BaseNote(long id, string title) : base(id)
         {
             this.ID = id;
             this.title = title;
@@ -38,18 +38,7 @@ namespace EasyNotes.DataModel
 
         public override string ToString()
         {
-            return "[ID]: " + ID + " [Title]: " + Title;
+            return base.ToString() + " [Title]: " + Title;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
     }
 }
