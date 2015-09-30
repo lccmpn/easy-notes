@@ -107,12 +107,25 @@ namespace EasyNotes
             }
         }
 
-        private void ModifyAppBarButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!Frame.Navigate(typeof(ModifySimpleNotePage), viewModel.SimpleNote.ID))
+            if (string.IsNullOrEmpty(viewModel.SimpleNote.Content))
             {
-                throw new Exception(AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "NavigationFailedExceptionMessage"));
+                string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
+                MessageDialog msgbox = new MessageDialog(alertMessage);
+                await msgbox.ShowAsync();
+                return;
+            }
+            if (string.IsNullOrEmpty(viewModel.SimpleNote.Title))
+            {
+                viewModel.SimpleNote.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
+            }
+            DataManager.SimpleNoteData.UpdateNote(viewModel.SimpleNote.ID, viewModel.SimpleNote.Title, viewModel.SimpleNote.Content);
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
             }
         }
+
     }
 }

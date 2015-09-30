@@ -1,5 +1,6 @@
 ﻿using EasyNotes.Common;
 using System;
+using System.Diagnostics;
 using EasyNotes.ViewModel;
 using EasyNotes.Database;
 using System.Collections.Generic;
@@ -18,6 +19,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using EasyNotes.Data.Model;
+using EasyNotes.Utility;
+using Windows.UI.Popups;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -29,7 +32,10 @@ namespace EasyNotes
     public sealed partial class TodoNoteDetailPage : Page
     {
         private NavigationHelper navigationHelper;
-        private TodoNoteDetailViewModel defaultViewModel;
+        private TodoNoteDetailViewModel viewModel;
+        private readonly string deletionAlertMessage;
+        private readonly string deletionConfirm;
+        private readonly string deletionCancel;
 
         public TodoNoteDetailPage()
         {
@@ -37,6 +43,9 @@ namespace EasyNotes
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
+            this.deletionCancel = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "No");
+            this.deletionConfirm = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "Yes");
+            this.deletionAlertMessage = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "NoteDeletionAlertMessage");
         }
 
         /// <summary>
@@ -61,11 +70,11 @@ namespace EasyNotes
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             long noteID = (long)e.NavigationParameter;
-            defaultViewModel = new TodoNoteDetailViewModel(DataManager.TodoNoteData.GetNoteById(noteID));
+            viewModel = new TodoNoteDetailViewModel(DataManager.TodoNoteData.GetNoteById(noteID));
 
             // TODO Perfect data context association. Anyway, it works.
-            this.DataContext = defaultViewModel.TodoNote;
-            TodoList.DataContext = defaultViewModel.TodoNote.TodoEntries;
+            this.DataContext = viewModel.TodoNote;
+            TodoNotesList.DataContext = viewModel.TodoNote.TodoEntries;
         }
 
         /// <summary>
@@ -78,6 +87,67 @@ namespace EasyNotes
         /// serializable state.</param>
         private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
+        }
+        private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            //string title = TitleTextBox.Text;
+            //string content = ContentTextBox.Text;
+            if (viewModel.TodoNote.TodoEntries.Count == 0)
+            {
+                string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
+                MessageDialog msgbox = new MessageDialog(alertMessage);
+                await msgbox.ShowAsync();
+                return;
+            }
+            if (string.IsNullOrEmpty(viewModel.TodoNote.Title))
+            {
+                viewModel.TodoNote.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
+            }
+            for (int i = viewModel.TodoNote.TodoEntries.Count - 1; i >= 0; i--)
+            {
+                if (string.IsNullOrEmpty(viewModel.TodoNote.TodoEntries[i].Content))
+                {
+                    viewModel.TodoNote.TodoEntries.Remove(viewModel.TodoNote.TodoEntries[i]);
+                }
+            }
+
+            DataManager.TodoNoteData.UpdateNote(viewModel.TodoNote.ID, viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
+        }
+
+        private void AddAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.TodoNote.AddEntry("", false);
+            
+            //ItemCollection items = TodoNotesList.Items;
+            //DataTemplate data = items.ElementAt(items.Count) as DataTemplate;
+
+            // Scroll the new item into view.
+            TodoNotesList.ScrollIntoView(viewModel.TodoNote.TodoEntries.ElementAt(viewModel.TodoNote.TodoEntries.Count - 1), ScrollIntoViewAlignment.Leading);
+        }
+
+        private async void DeleteAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            var messageDialog = new MessageDialog(deletionAlertMessage);
+            messageDialog.Commands.Add(new UICommand(deletionConfirm, new UICommandInvokedHandler(this.CommandInvokedHandler)));
+            messageDialog.Commands.Add(new UICommand(deletionCancel, new UICommandInvokedHandler(this.CommandInvokedHandler)));
+            // Show the message dialog
+            await messageDialog.ShowAsync();
+        }
+
+        private void CommandInvokedHandler(IUICommand command)
+        {
+            if (command.Label.Equals(deletionConfirm))
+            {
+                DataManager.TodoNoteData.DeleteNote(this.viewModel.TodoNote.ID);
+                if (Frame.CanGoBack)
+                {
+                    Frame.GoBack();
+                }
+            }
         }
 
         #region NavigationHelper registration

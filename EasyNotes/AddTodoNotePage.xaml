@@ -143,7 +143,6 @@
                             </Grid.ColumnDefinitions>
                             <CheckBox Grid.Column="0"
                                       IsChecked="{Binding Path=IsDone, Mode=TwoWay}"/>
-                                      
                             <TextBox
                                 Grid.Column="1"
                                     Text="{Binding Path=Content, Mode=TwoWay}"
@@ -157,7 +156,6 @@
                                     BorderBrush="Black"
                                     FontSize="25"
                                     Margin="0,0,19,0"/>
-                            
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

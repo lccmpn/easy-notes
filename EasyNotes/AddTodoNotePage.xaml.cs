@@ -110,6 +110,12 @@ namespace EasyNotes
             }
         }
 
+        private void AddAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.TodoNote.AddEntry("", false);
+            //ListViewItem item = TodoNotesList.Items[TodoNotesList.Items.Count] as ListViewItem;
+        }
+
         #region NavigationHelper registration
 
         /// <summary>
@@ -137,9 +143,6 @@ namespace EasyNotes
 
         #endregion
 
-        private void AddAppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            viewModel.TodoNote.AddEntry("", false);
-        }
+
     }
 }
