@@ -94,24 +94,25 @@
             </Setter>
         </Style>
     </Page.Resources>
-    
-    <Grid x:Name="LayoutRoot">
-        
-        <Grid.ChildrenTransitions>
-            <TransitionCollection>
-                <EntranceThemeTransition/>
-            </TransitionCollection>
-        </Grid.ChildrenTransitions>
+    <ScrollViewer>
+        <Grid x:Name="LayoutRoot" VerticalAlignment="Stretch">
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+            <Grid.ChildrenTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition/>
+                </TransitionCollection>
+            </Grid.ChildrenTransitions>
 
-        <!-- Title Panel -->
-        <StackPanel Grid.Row="0" Margin="19,0,19,0">
-            <TextBlock x:Uid="Header" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
-            <TextBox x:Uid="Title" Text="{Binding Path=Title, Mode=TwoWay}" 
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title Panel -->
+            <StackPanel Grid.Row="0" Margin="19,0,19,0">
+                <TextBlock x:Uid="Header" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
+                <TextBox x:Uid="Title" Text="{Binding Path=Title, Mode=TwoWay}" 
                      Margin="0,6.5,0,0" 
                      Height="80"
                      FontSize="40"
@@ -121,29 +122,30 @@
                      BorderBrush="Black"
                      VerticalAlignment="Center"
                      Style="{StaticResource TextBoxStyle1}"/>
-        </StackPanel>
+            </StackPanel>
 
-        <!--TODO: Content should be placed within the following grid-->
-        <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
-            <ListView
+            <!--TODO: Content should be placed within the following grid-->
+            <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
+                <ListView
                     x:Name="TodoNotesList"
                     ItemsSource="{Binding}"
+
                     ContinuumNavigationTransitionInfo.ExitElementContainer="True">
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="0,0,0,9.5" VerticalAlignment="Center">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="45"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <CheckBox Grid.Column="0"
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,0,9.5" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="45"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <CheckBox Grid.Column="0"
                                       IsChecked="{Binding Path=IsDone, Mode=TwoWay}"/>
-                            <TextBox
+                                <TextBox
                                 Grid.Column="1"
                                     Text="{Binding Path=Content, Mode=TwoWay}"
                                     TextWrapping="Wrap"
@@ -156,16 +158,52 @@
                                     BorderBrush="Black"
                                     FontSize="25"
                                     Margin="0,0,19,0"/>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+            <Grid x:Name="RememberNoteGrid" Visibility="Collapsed" Grid.Row="3" Margin="19,9.5,19,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" FontSize="20" Text="Notify on:" />
+                <Grid Grid.Row="1">
+                    <DatePicker x:Name="RememberingDatePicker" Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,9,0"/>
+                    <TimePicker x:Name="RememberingTimePicker" Grid.Column="1" HorizontalAlignment="Stretch" Margin="9,0,0,0"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
+                
+                <!--<Button Grid.Row="1" x:Name="SelectRememberingTime" Margin="19,0,19,0" Content="When" HorizontalAlignment="Stretch" Click="SelectRememberingTime_Click" >
+                    <FlyoutBase.AttachedFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Text="15 minutes before" Click="FifteenMinutes_Click" />
+                            <MenuFlyoutItem Text="One hour before" Click="OneHour_Click"/>
+                        </MenuFlyout>
+                    </FlyoutBase.AttachedFlyout>
+                </Button>
+                <Button Grid.Row="2" x:Name="DiscardRemembering" Margin="19,0,19,0" Content="Delete" HorizontalAlignment="Stretch" Click="DiscardRemembering_Click"/>
+                -->
+            </Grid>
+
         </Grid>
-    </Grid>
+    </ScrollViewer>
     <Page.BottomAppBar>
         <CommandBar>
             <AppBarButton x:Uid="SaveAppBarButton" x:Name="SaveAppBarButton" Icon="Save" Click="SaveNoteBarButton_Click" />
             <AppBarButton x:Uid="AddAppBarButton" x:Name="AddAppBarButton" Icon="Add" Click="AddAppBarButton_Click" />
+            <AppBarButton x:Name="CalendarAppBarButton" Icon="Calendar" Click="CalendarAppBarButton_Click" />
+                <!--<AppBarButton.Flyout>
+                    <DatePickerFlyout x:Name="myDatePickerFlyout" />
+                </AppBarButton.Flyout>-->
+            
+            <AppBarButton Visibility="Collapsed" x:Name="CancelSchedulingAppBarButton" Icon="Cancel" Click="CancelSchedulingAppBarButton_Click" />
+                          
         </CommandBar>
     </Page.BottomAppBar>
+        
 </Page>

@@ -90,10 +90,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ModifySimpleNotePage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="PivotPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -121,14 +117,12 @@
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
+    <Compile Include="Data\Database\IDatabaseHelper.cs" />
     <Compile Include="Data\Model\BaseModel.cs" />
     <Compile Include="Data\Model\BaseNote.cs" />
     <Compile Include="Data\Database\DataManager.cs" />
     <Compile Include="Data\Model\SimpleNote.cs" />
     <Compile Include="Data\Model\TodoNote.cs" />
-    <Compile Include="ModifySimpleNotePage.xaml.cs">
-      <DependentUpon>ModifySimpleNotePage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="PivotPage.xaml.cs">
       <DependentUpon>PivotPage.xaml</DependentUpon>
     </Compile>
@@ -140,6 +134,8 @@
       <DependentUpon>TodoNoteDetailPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utility\AppResourcesLoader.cs" />
+    <Compile Include="Utility\NotificationFactory.cs" />
+    <Compile Include="Utility\Scheduler.cs" />
     <Compile Include="Utility\TimeUtil.cs" />
     <Compile Include="ViewModel\AddTodoNoteViewModel.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />

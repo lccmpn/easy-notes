@@ -30,6 +30,7 @@ namespace EasyNotes
         private readonly string deletionConfirm;
         private readonly string deletionCancel;
         private SimpleNoteDetailViewModel viewModel;
+        private DataManager.SimpleNoteDataHelper simpleNoteDataHelper = new DataManager.SimpleNoteDataHelper();
 
         public SimpleNoteDetailPage()
         {
@@ -50,7 +51,7 @@ namespace EasyNotes
 
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            SimpleNote note = (SimpleNote)DataManager.SimpleNoteData.GetNoteById((long)e.NavigationParameter);
+            SimpleNote note = (SimpleNote)simpleNoteDataHelper.GetNoteById((long)e.NavigationParameter);
             viewModel.SimpleNote = note;
             this.DataContext = viewModel.SimpleNote;
         }
@@ -100,7 +101,7 @@ namespace EasyNotes
         {
             if (command.Label.Equals(deletionConfirm))
             {
-                DataManager.SimpleNoteData.DeleteNote(this.viewModel.SimpleNote.ID);
+                simpleNoteDataHelper.DeleteNote(this.viewModel.SimpleNote.ID);
                 if(Frame.CanGoBack){
                     Frame.GoBack();
                 }
@@ -120,7 +121,7 @@ namespace EasyNotes
             {
                 viewModel.SimpleNote.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
             }
-            DataManager.SimpleNoteData.UpdateNote(viewModel.SimpleNote.ID, viewModel.SimpleNote.Title, viewModel.SimpleNote.Content);
+            simpleNoteDataHelper.UpdateNote(viewModel.SimpleNote.ID, viewModel.SimpleNote.Title, viewModel.SimpleNote.Content);
             if (Frame.CanGoBack)
             {
                 Frame.GoBack();

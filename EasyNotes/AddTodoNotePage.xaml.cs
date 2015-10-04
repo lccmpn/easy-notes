@@ -19,6 +19,9 @@ using Windows.UI.Xaml.Navigation;
 using EasyNotes.Utility;
 using Windows.UI.Popups;
 using EasyNotes.Database;
+using System.Diagnostics;
+using Windows.UI.Notifications;
+using Windows.Data.Xml.Dom;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -31,6 +34,8 @@ namespace EasyNotes
     {
         private NavigationHelper navigationHelper;
         private AddTodoNoteViewModel viewModel;
+        private DataManager.TodoNoteDataHelper todoNoteDataHelper = new DataManager.TodoNoteDataHelper();
+        private const string  EMPTY_STRING = "";
 
         public AddTodoNotePage()
         {
@@ -41,7 +46,7 @@ namespace EasyNotes
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
             viewModel = new AddTodoNoteViewModel();
             this.DataContext = viewModel.TodoNote;
-            viewModel.TodoNote.AddEntry("", false);
+            viewModel.TodoNote.AddEntry(EMPTY_STRING, false);
             TodoNotesList.DataContext = viewModel.TodoNote.TodoEntries;
         }
 
@@ -83,8 +88,11 @@ namespace EasyNotes
 
         private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
         {
-            //string title = TitleTextBox.Text;
-            //string content = ContentTextBox.Text;
+            DateTime date = (DateTime)RememberingDatePicker.Date.Date;
+            TimeSpan time = (TimeSpan)RememberingTimePicker.Time;
+            date = date.Add(time);
+            
+            // TODO check if all TodoEntries are empty
             if (viewModel.TodoNote.TodoEntries.Count == 0)
             {
                 string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
@@ -96,14 +104,26 @@ namespace EasyNotes
             {
                 viewModel.TodoNote.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
             }
-            for (int i = viewModel.TodoNote.TodoEntries.Count -1; i >= 0; i--)
-            {   
+            for (int i = viewModel.TodoNote.TodoEntries.Count - 1; i >= 0; i--)
+            {
                 if (string.IsNullOrEmpty(viewModel.TodoNote.TodoEntries[i].Content))
                 {
                     viewModel.TodoNote.TodoEntries.Remove(viewModel.TodoNote.TodoEntries[i]);
                 }
             }
-            DataManager.TodoNoteData.AddNote(viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
+            if (RememberNoteGrid.Visibility == Visibility.Visible)
+            {
+                if (date < DateTime.Now)
+                {
+                    // TODO put this string in string resources
+                    MessageDialog msgbox = new MessageDialog("Date and hour must be in the future.");
+                    await msgbox.ShowAsync();
+                    return;
+                }
+                XmlDocument notification = NotificationBuilder.BuildNoTitleNotification(viewModel.TodoNote.Title);
+                Scheduler.ScheduleNotification(notification, date);
+            }
+            todoNoteDataHelper.AddNote(viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
             if (Frame.CanGoBack)
             {
                 Frame.GoBack();
@@ -112,8 +132,8 @@ namespace EasyNotes
 
         private void AddAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.TodoNote.AddEntry("", false);
-            //ListViewItem item = TodoNotesList.Items[TodoNotesList.Items.Count] as ListViewItem;
+            viewModel.TodoNote.AddEntry(EMPTY_STRING, false);
+            TodoNotesList.ScrollIntoView(viewModel.TodoNote.TodoEntries.ElementAt(viewModel.TodoNote.TodoEntries.Count - 1), ScrollIntoViewAlignment.Leading);
         }
 
         #region NavigationHelper registration
@@ -143,6 +163,25 @@ namespace EasyNotes
 
         #endregion
 
+        private void SelectRememberingTime_Click(object sender, RoutedEventArgs e)
+        {
+            FrameworkElement senderElement = sender as FrameworkElement;
+            FlyoutBase flyoutBase = FlyoutBase.GetAttachedFlyout(senderElement);
+            flyoutBase.ShowAt(senderElement);
+        }
 
+        private void CalendarAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            CancelSchedulingAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            CalendarAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            RememberNoteGrid.Visibility = Windows.UI.Xaml.Visibility.Visible;
+        }
+
+        private void CancelSchedulingAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            CancelSchedulingAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            CalendarAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            RememberNoteGrid.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+        }
     }
 }

@@ -29,10 +29,11 @@ namespace EasyNotes
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class TodoNoteDetailPage : Page
+    public partial class TodoNoteDetailPage : Page
     {
         private NavigationHelper navigationHelper;
         private TodoNoteDetailViewModel viewModel;
+        private DataManager.TodoNoteDataHelper todoNoteDataHelper = new DataManager.TodoNoteDataHelper();
         private readonly string deletionAlertMessage;
         private readonly string deletionConfirm;
         private readonly string deletionCancel;
@@ -70,9 +71,7 @@ namespace EasyNotes
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             long noteID = (long)e.NavigationParameter;
-            viewModel = new TodoNoteDetailViewModel(DataManager.TodoNoteData.GetNoteById(noteID));
-
-            // TODO Perfect data context association. Anyway, it works.
+            viewModel = new TodoNoteDetailViewModel((TodoNote)todoNoteDataHelper.GetNoteById(noteID));
             this.DataContext = viewModel.TodoNote;
             TodoNotesList.DataContext = viewModel.TodoNote.TodoEntries;
         }
@@ -88,10 +87,9 @@ namespace EasyNotes
         private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
         }
+
         private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
         {
-            //string title = TitleTextBox.Text;
-            //string content = ContentTextBox.Text;
             if (viewModel.TodoNote.TodoEntries.Count == 0)
             {
                 string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
@@ -111,7 +109,7 @@ namespace EasyNotes
                 }
             }
 
-            DataManager.TodoNoteData.UpdateNote(viewModel.TodoNote.ID, viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
+            todoNoteDataHelper.UpdateNote(viewModel.TodoNote.ID, viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
             if (Frame.CanGoBack)
             {
                 Frame.GoBack();
@@ -142,7 +140,7 @@ namespace EasyNotes
         {
             if (command.Label.Equals(deletionConfirm))
             {
-                DataManager.TodoNoteData.DeleteNote(this.viewModel.TodoNote.ID);
+                todoNoteDataHelper.DeleteNote(this.viewModel.TodoNote.ID);
                 if (Frame.CanGoBack)
                 {
                     Frame.GoBack();

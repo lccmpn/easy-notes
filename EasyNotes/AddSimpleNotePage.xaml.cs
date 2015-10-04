@@ -19,6 +19,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Popups;
 using Windows.UI.Xaml.Navigation;
+using EasyNotes.Data.Database;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -32,6 +33,7 @@ namespace EasyNotes
         private NavigationHelper navigationHelper;
         //private ObservableDictionary defaultViewModel = new ObservableDictionary();
         private SimpleNote viewModel;
+        private DataManager.SimpleNoteDataHelper simpleNoteDataHelper;
 
         public AddSimpleNotePage()
         {
@@ -39,7 +41,7 @@ namespace EasyNotes
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
-
+            this.simpleNoteDataHelper = new DataManager.SimpleNoteDataHelper();
         }
 
         /// <summary>
@@ -130,7 +132,7 @@ namespace EasyNotes
             {
                 viewModel.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
             }
-            DataManager.SimpleNoteData.AddNote(viewModel.Title, viewModel.Content);
+            simpleNoteDataHelper.AddNote(viewModel.Title, viewModel.Content);
             if (Frame.CanGoBack)
             {
                 Frame.GoBack();

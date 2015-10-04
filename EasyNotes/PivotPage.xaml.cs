@@ -22,27 +22,38 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using EasyNotes.Data.Database;
 
 // The Pivot Application template is documented at http://go.microsoft.com/fwlink/?LinkID=391641
 
 namespace EasyNotes
 {
+    public  enum NoteType { SimpleNote, TodoNote, PhotoNote };
+
     public sealed partial class PivotPage : Page
     {
-        private enum PivotItem { SimpleNote, TodoNote, PhotoNote };
+        IDatabaseHelper databaseHelper;
+        private NoteType selectedPivot;
+        private Dictionary<int, ListView> listViews = new Dictionary<int, ListView>();
         private readonly NavigationHelper navigationHelper;
         private ObservableDictionary viewModels = new ObservableDictionary();
         private const int DELETE_APP_BAR_BUTTON_POSITION = 0;
-        private const string SIMPLE_NOTE = "SimpleNoteData";
-        private const string TODO_NOTE = "TodoNoteData";
+        private readonly string SIMPLE_NOTE = NoteType.SimpleNote.ToString();
+        private readonly string TODO_NOTE = NoteType.TodoNote.ToString();
+        private readonly string PHOTO_NOTE = NoteType.PhotoNote.ToString();
 
         public PivotPage()
         {
             this.InitializeComponent();
+            this.selectedPivot = NoteType.SimpleNote;
             this.NavigationCacheMode = NavigationCacheMode.Required;
+            this.databaseHelper = new DataManager.SimpleNoteDataHelper();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
+            this.listViews[(int)NoteType.SimpleNote] = SimpleNotesList;
+            this.listViews[(int)NoteType.TodoNote] = ToDoNotesList;
+            this.listViews[(int)NoteType.PhotoNote] = PhotoNotesList;
         }
 
         public NavigationHelper NavigationHelper
@@ -82,8 +93,10 @@ namespace EasyNotes
         /// session. The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            viewModels[SIMPLE_NOTE] = DataManager.SimpleNoteData.GetAllNotes();
+            this.databaseHelper = new DataManager.SimpleNoteDataHelper();
+            viewModels[SIMPLE_NOTE] = databaseHelper.GetAllNotes();
             SimpleNotesList.DataContext = viewModels[SIMPLE_NOTE];
+            this.selectedPivot = NoteType.SimpleNote;
         }
 
         /// <summary>
@@ -91,8 +104,11 @@ namespace EasyNotes
         /// </summary>
         private void SecondPivot_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModels[TODO_NOTE] = DataManager.TodoNoteData.GetAllNotes();
+            this.databaseHelper = new DataManager.TodoNoteDataHelper();
+            viewModels[TODO_NOTE] = databaseHelper.GetAllNotes();
             ToDoNotesList.DataContext = viewModels[TODO_NOTE];
+            this.selectedPivot = NoteType.TodoNote;
+            
         }
 
         /// <summary>
@@ -121,16 +137,16 @@ namespace EasyNotes
         /// </summary>
         private void AddNoteBarButton_Click(object sender, RoutedEventArgs e)
         {
-            System.Type type = null;
+            Type type = null;
             switch (this.pivot.SelectedIndex)
             {
-                case (int)PivotItem.SimpleNote:
+                case (int)NoteType.SimpleNote:
                     type = typeof(AddSimpleNotePage);
                     break;
-                case (int)PivotItem.TodoNote:
+                case (int)NoteType.TodoNote:
                     type = typeof(AddTodoNotePage);
                     break;
-                case (int)PivotItem.PhotoNote:
+                case (int)NoteType.PhotoNote:
                     break;
             }
             if (type == null || !Frame.Navigate(type))
@@ -155,13 +171,13 @@ namespace EasyNotes
                 Type type = null;
                 switch (this.pivot.SelectedIndex)
                 {
-                    case (int)PivotItem.SimpleNote:
+                    case (int)NoteType.SimpleNote:
                         type = typeof(SimpleNoteDetailPage);
                         break;
-                    case (int)PivotItem.TodoNote:
+                    case (int)NoteType.TodoNote:
                         type = typeof(TodoNoteDetailPage);
                         break;
-                    case (int)PivotItem.PhotoNote:
+                    case (int)NoteType.PhotoNote:
                         break;
                 }
                 if (type == null || !Frame.Navigate(type, itemId))
@@ -203,6 +219,7 @@ namespace EasyNotes
 
         #endregion
 
+
         private void MultipleSelectionAppBarButton_Click(object sender, RoutedEventArgs e)
         {
             if (!IsMultipleSelectionenable())
@@ -213,17 +230,17 @@ namespace EasyNotes
             {
                 UnsetMultipleSelection();
             }
-                
         }
 
         private void DeleteAppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (SimpleNotesList.SelectedItems.Count > 0)
+        {   
+            ListView list = listViews[this.pivot.SelectedIndex];
+            if (list.SelectedItems.Count > 0)
             {
-                foreach (BaseNote note in SimpleNotesList.SelectedItems.Reverse())
+                foreach (BaseNote note in list.SelectedItems.Reverse())
                 {
-                    DataManager.SimpleNoteData.DeleteNote(note.ID);
-                    ObservableCollection<BaseNote> notes = (ObservableCollection<BaseNote>)viewModels[SIMPLE_NOTE];
+                    databaseHelper.DeleteNote(note.ID);
+                    ObservableCollection<BaseNote> notes = (ObservableCollection<BaseNote>)viewModels[selectedPivot.ToString()];
                     notes.Remove(note);
                 }
                 UnsetMultipleSelection();
@@ -232,26 +249,21 @@ namespace EasyNotes
 
         private void SetMultipleSelection()
         {
-            if (((ObservableCollection<BaseNote>)viewModels[SIMPLE_NOTE]).Count > 0 && !IsMultipleSelectionenable())
+            ListView list = listViews[this.pivot.SelectedIndex];
+            if (((ObservableCollection<BaseNote>)viewModels[selectedPivot.ToString()]).Count > 0 && !IsMultipleSelectionenable())
             {
-                this.SimpleNotesList.SelectionMode = ListViewSelectionMode.Multiple;
-                this.SimpleNotesList.IsItemClickEnabled = false;
-                // Add separator.
-                CommandBar.PrimaryCommands.Insert(DELETE_APP_BAR_BUTTON_POSITION, new AppBarSeparator());
-                // Create delete button.
-                AppBarButton deleteButton = new AppBarButton();
-                deleteButton.Icon = new SymbolIcon(Symbol.Delete);
-                deleteButton.Label = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DeleteAppBarButtonLabel");
-                deleteButton.Click += DeleteAppBarButton_Click;
-                // Add delete button.
-                CommandBar.PrimaryCommands.Insert(DELETE_APP_BAR_BUTTON_POSITION, deleteButton);
+                Debug.WriteLine("Setting multiple");
+                list.SelectionMode = ListViewSelectionMode.Multiple;
+                list.IsItemClickEnabled = false;
+                AddDeleteButtonToAppBar();
             }
         }
 
         private void UnsetMultipleSelection()
         {
-            this.SimpleNotesList.SelectionMode = ListViewSelectionMode.None;
-            this.SimpleNotesList.IsItemClickEnabled = true;
+            ListView list = listViews[this.pivot.SelectedIndex];
+            list.SelectionMode = ListViewSelectionMode.None;
+            list.IsItemClickEnabled = true;
             if (CommandBar != null)
             {
                 AppBarButton b = CommandBar.PrimaryCommands[DELETE_APP_BAR_BUTTON_POSITION] as AppBarButton;
@@ -265,7 +277,22 @@ namespace EasyNotes
 
         private bool IsMultipleSelectionenable()
         {
-            return SimpleNotesList.SelectionMode == ListViewSelectionMode.Multiple;
+            ListView list = listViews[this.pivot.SelectedIndex];
+            return list.SelectionMode == ListViewSelectionMode.Multiple;
         }
+
+        private void AddDeleteButtonToAppBar()
+        {
+            // Add separator.
+            CommandBar.PrimaryCommands.Insert(DELETE_APP_BAR_BUTTON_POSITION, new AppBarSeparator());
+            // Create delete button.
+            AppBarButton deleteButton = new AppBarButton();
+            deleteButton.Icon = new SymbolIcon(Symbol.Delete);
+            deleteButton.Label = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DeleteAppBarButtonLabel");
+            deleteButton.Click += DeleteAppBarButton_Click;
+            // Add delete button.
+            CommandBar.PrimaryCommands.Insert(DELETE_APP_BAR_BUTTON_POSITION, deleteButton);
+        }
+
     }
 }
