@@ -8,9 +8,17 @@ namespace EasyNotes.Utility
 {
     class TimeUtil
     {
+        private const string ISO8601_STANDARD_FORMAT = "s";
+
         public static String GetTimestamp()
         {
-            return DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss");
+            return DateTimeOffset.Now.ToString(ISO8601_STANDARD_FORMAT);
         }
+
+        public static String ConvertDateTimeOffsetToString(DateTimeOffset dateTime)
+        {
+            return dateTime.ToString(ISO8601_STANDARD_FORMAT);
+        }
+
     }
 }

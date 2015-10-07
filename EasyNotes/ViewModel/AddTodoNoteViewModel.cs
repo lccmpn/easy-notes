@@ -18,5 +18,11 @@ namespace EasyNotes.ViewModel
             TodoNote = new TodoNote();
         }
 
+        public AddTodoNoteViewModel(TodoNote todoNote)
+        {
+            ObservableCollection<TodoNote.ToDoEntry> entries = new ObservableCollection<TodoNote.ToDoEntry>();
+            TodoNote = todoNote;
+        }
+
     }
 }

@@ -23,6 +23,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using EasyNotes.Data.Database;
+using EasyNotes.Data;
 
 // The Pivot Application template is documented at http://go.microsoft.com/fwlink/?LinkID=391641
 
@@ -32,7 +33,7 @@ namespace EasyNotes
 
     public sealed partial class PivotPage : Page
     {
-        IDatabaseHelper databaseHelper;
+        INoteManager databaseHelper;
         private NoteType selectedPivot;
         private Dictionary<int, ListView> listViews = new Dictionary<int, ListView>();
         private readonly NavigationHelper navigationHelper;
@@ -47,7 +48,6 @@ namespace EasyNotes
             this.InitializeComponent();
             this.selectedPivot = NoteType.SimpleNote;
             this.NavigationCacheMode = NavigationCacheMode.Required;
-            this.databaseHelper = new DataManager.SimpleNoteDataHelper();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
@@ -93,7 +93,7 @@ namespace EasyNotes
         /// session. The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            this.databaseHelper = new DataManager.SimpleNoteDataHelper();
+            this.databaseHelper = new SimpleNoteManager();
             viewModels[SIMPLE_NOTE] = databaseHelper.GetAllNotes();
             SimpleNotesList.DataContext = viewModels[SIMPLE_NOTE];
             this.selectedPivot = NoteType.SimpleNote;
@@ -104,7 +104,7 @@ namespace EasyNotes
         /// </summary>
         private void SecondPivot_Loaded(object sender, RoutedEventArgs e)
         {
-            this.databaseHelper = new DataManager.TodoNoteDataHelper();
+            this.databaseHelper = new DatabaseHelper.TodoNoteDataHelper();
             viewModels[TODO_NOTE] = databaseHelper.GetAllNotes();
             ToDoNotesList.DataContext = viewModels[TODO_NOTE];
             this.selectedPivot = NoteType.TodoNote;
@@ -172,10 +172,10 @@ namespace EasyNotes
                 switch (this.pivot.SelectedIndex)
                 {
                     case (int)NoteType.SimpleNote:
-                        type = typeof(SimpleNoteDetailPage);
+                        type = typeof(AddSimpleNotePage);
                         break;
                     case (int)NoteType.TodoNote:
-                        type = typeof(TodoNoteDetailPage);
+                        type = typeof(AddTodoNotePage);
                         break;
                     case (int)NoteType.PhotoNote:
                         break;

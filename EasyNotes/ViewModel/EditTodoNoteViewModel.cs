@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace EasyNotes.ViewModel
 {
-    public class TodoNoteDetailViewModel : BaseViewModel
+    public class EditTodoNoteViewModel : BaseViewModel
     {
         public TodoNote TodoNote { get; set; }
 
-        public TodoNoteDetailViewModel(TodoNote todoNote)
+        public EditTodoNoteViewModel(TodoNote todoNote)
         {
             this.TodoNote = todoNote;
         }

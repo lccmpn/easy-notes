@@ -8,31 +8,19 @@ namespace EasyNotes.Data.Model
 {
     public class SimpleNote : BaseNote
     {
-        private string content;
+        public string Content { get; set; }
 
         public SimpleNote() : base() { }
 
-        public SimpleNote(long id, string title, string content)
-            : base(id, title)
+        public SimpleNote(long id, string title, ScheduledNotification schedule, string content)
+            : base(id, title, schedule)
         {
-            this.content = content;
-        }
-
-        public string Content
-        {
-            get { return this.content; }
-            set
-            {
-                if(this.content != value){
-                    this.content = value;
-                    OnPropertyChanged("Content");
-                }
-            }
+            this.Content = content;
         }
 
         public override string ToString()
         {
-            return base.ToString() + " [Content]: " + content;
+            return base.ToString() + " [Content]: " + this.Content;
         }
 
     }

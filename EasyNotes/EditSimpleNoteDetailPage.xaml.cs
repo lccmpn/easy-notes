@@ -20,6 +20,11 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Popups;
 using Windows.UI.Xaml.Navigation;
 using EasyNotes.Data.Database;
+using Windows.Data.Xml.Dom;
+using EasyNotes.Enums;
+using EasyNotes.ViewModel;
+using System.Diagnostics;
+using EasyNotes.Data;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -32,8 +37,10 @@ namespace EasyNotes
     {
         private NavigationHelper navigationHelper;
         //private ObservableDictionary defaultViewModel = new ObservableDictionary();
-        private SimpleNote viewModel;
-        private DataManager.SimpleNoteDataHelper simpleNoteDataHelper;
+        private EditSimpleNoteDetailViewModel viewModel;
+        private PageAction action;
+        private SimpleNoteManager simpleNoteManager;
+        //private DatabaseHelper.SimpleNoteHelper simpleNoteDataHelper;
 
         public AddSimpleNotePage()
         {
@@ -41,7 +48,8 @@ namespace EasyNotes
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
-            this.simpleNoteDataHelper = new DataManager.SimpleNoteDataHelper();
+            //this.simpleNoteDataHelper = new DatabaseHelper.SimpleNoteHelper();
+            this.simpleNoteManager = new SimpleNoteManager();
         }
 
         /// <summary>
@@ -74,7 +82,29 @@ namespace EasyNotes
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            viewModel = new SimpleNote();
+            if (e.NavigationParameter != null)
+            {
+                long noteID = (long)e.NavigationParameter;
+                viewModel = new EditSimpleNoteDetailViewModel((SimpleNote)simpleNoteManager.GetNoteById(noteID));
+                Debug.WriteLine(viewModel.ToString());
+                action = PageAction.Update;
+                if(viewModel.IsNotificationDateVisible){
+                    if (viewModel.NotificationDate.Add(viewModel.NotificationTime) < DateTimeOffset.Now)
+                    {
+                        Debug.WriteLine("Notification too old..Deleting");
+                        simpleNoteManager.DeleteNotification(viewModel.ID);
+                        SetNotificationSchedulingVisibile(false);
+                    }
+                    else
+                    {
+                        SetNotificationSchedulingVisibile(true);
+                    }
+                }
+            }
+            else
+            {
+                viewModel = new EditSimpleNoteDetailViewModel();
+            }
             this.DataContext = viewModel;
         }
 
@@ -119,8 +149,6 @@ namespace EasyNotes
 
         private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
         {
-            //string title = TitleTextBox.Text;
-            //string content = ContentTextBox.Text;
             if (string.IsNullOrEmpty(viewModel.Content))
             {
                 string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
@@ -132,11 +160,74 @@ namespace EasyNotes
             {
                 viewModel.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
             }
-            simpleNoteDataHelper.AddNote(viewModel.Title, viewModel.Content);
+            if (RememberNoteGrid.Visibility == Visibility.Visible)
+            {
+                DateTime date = (DateTime) RememberingDatePicker.Date.Date;
+                TimeSpan time = (TimeSpan) RememberingTimePicker.Time;
+                date = date.Add(time);
+                if (date < DateTime.Now)
+                {
+                    // TODO put this string in string resources
+                    MessageDialog msgbox = new MessageDialog("Date and hour must be in the future.");
+                    await msgbox.ShowAsync();
+                    return;
+                }
+                if (action == PageAction.Create)
+                {
+                    simpleNoteManager.AddNoteAndNotification(viewModel.Title, viewModel.Content, viewModel.Title, viewModel.NotificationDate.Add(viewModel.NotificationTime));
+                }
+                else
+                {
+                    simpleNoteManager.UpdateNoteAndNotification(viewModel.ID, viewModel.Title, viewModel.Content, viewModel.Title, viewModel.NotificationDate.Add(viewModel.NotificationTime));
+                    Debug.WriteLine("Updating notification");
+                }
+            }
+            else
+            {
+                if (action == PageAction.Create) 
+                {
+                    simpleNoteManager.AddNote(viewModel.Title, viewModel.Content);
+                }
+                else
+                {
+                    simpleNoteManager.UpdateNote(viewModel.ID, viewModel.Title, viewModel.Content);
+                }
+            }
             if (Frame.CanGoBack)
             {
                 Frame.GoBack();
             }
         }
+
+        private void CalendarAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            SetNotificationSchedulingVisibile(true);
+        }
+
+        private void CancelSchedulingAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            SetNotificationSchedulingVisibile(false);
+        }
+
+        private void SetNotificationSchedulingVisibile(bool visible){
+            if(visible){           
+                CancelSchedulingAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                CalendarAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                RememberNoteGrid.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            } else{
+                CancelSchedulingAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                CalendarAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
+                RememberNoteGrid.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            }
+        }
+
+        //private void DeleteAppBarButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    simpleNoteManager.DeleteNote(viewModel.ID);
+        //    if(Frame.CanGoBack){
+        //        Frame.GoBack();
+        //    }
+        //}
+
     }
 }

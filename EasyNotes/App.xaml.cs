@@ -39,7 +39,7 @@ namespace EasyNotes
             this.InitializeComponent();
             
             this.Suspending += this.OnSuspending;
-            DataManager.CreateDatabase();
+            DatabaseHelper.CreateDatabase();
         }
 
         /// <summary>

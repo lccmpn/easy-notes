@@ -25,8 +25,8 @@ namespace EasyNotes.Data.Model
             }
         }
 
-        public TodoNote(long id, string title, ObservableCollection<ToDoEntry> toDoEntries)
-            : base(id, title)
+        public TodoNote(long id, string title, ScheduledNotification notificationDateTime, ObservableCollection<ToDoEntry> toDoEntries)
+            : base(id, title, notificationDateTime)
         {
             this.todoEntries = toDoEntries;
         }

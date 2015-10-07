@@ -22,6 +22,8 @@ using EasyNotes.Database;
 using System.Diagnostics;
 using Windows.UI.Notifications;
 using Windows.Data.Xml.Dom;
+using EasyNotes.Data.Model;
+using EasyNotes.Enums;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -32,22 +34,18 @@ namespace EasyNotes
     /// </summary>
     public sealed partial class AddTodoNotePage : Page
     {
+        private PageAction state;
         private NavigationHelper navigationHelper;
         private AddTodoNoteViewModel viewModel;
-        private DataManager.TodoNoteDataHelper todoNoteDataHelper = new DataManager.TodoNoteDataHelper();
+        private DatabaseHelper.TodoNoteDataHelper todoNoteDataHelper = new DatabaseHelper.TodoNoteDataHelper();
         private const string  EMPTY_STRING = "";
 
         public AddTodoNotePage()
         {
             this.InitializeComponent();
-
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
-            viewModel = new AddTodoNoteViewModel();
-            this.DataContext = viewModel.TodoNote;
-            viewModel.TodoNote.AddEntry(EMPTY_STRING, false);
-            TodoNotesList.DataContext = viewModel.TodoNote.TodoEntries;
         }
 
         /// <summary>
@@ -72,6 +70,20 @@ namespace EasyNotes
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            if (e.NavigationParameter != null)
+            {
+                long noteID = (long)e.NavigationParameter;
+                viewModel = new AddTodoNoteViewModel((TodoNote)todoNoteDataHelper.GetNoteById(noteID));
+                state = PageAction.Update;
+            }
+            else
+            {
+                viewModel = new AddTodoNoteViewModel();
+                viewModel.TodoNote.AddEntry(EMPTY_STRING, false);
+                state = PageAction.Create;
+            }
+            this.DataContext = viewModel.TodoNote;
+            TodoNotesList.DataContext = viewModel.TodoNote.TodoEntries;
         }
 
         /// <summary>
@@ -88,9 +100,7 @@ namespace EasyNotes
 
         private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
         {
-            DateTime date = (DateTime)RememberingDatePicker.Date.Date;
-            TimeSpan time = (TimeSpan)RememberingTimePicker.Time;
-            date = date.Add(time);
+
             
             // TODO check if all TodoEntries are empty
             if (viewModel.TodoNote.TodoEntries.Count == 0)
@@ -113,6 +123,10 @@ namespace EasyNotes
             }
             if (RememberNoteGrid.Visibility == Visibility.Visible)
             {
+                DateTimeOffset date = (DateTimeOffset)RememberingDatePicker.Date.Date;
+                TimeSpan time = (TimeSpan)RememberingTimePicker.Time;
+                date = date.Add(time);
+                Debug.WriteLine(date);
                 if (date < DateTime.Now)
                 {
                     // TODO put this string in string resources
@@ -121,9 +135,17 @@ namespace EasyNotes
                     return;
                 }
                 XmlDocument notification = NotificationBuilder.BuildNoTitleNotification(viewModel.TodoNote.Title);
-                Scheduler.ScheduleNotification(notification, date);
+                NotificationScheduler.ScheduleNotification(notification, date);
             }
-            todoNoteDataHelper.AddNote(viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
+            if (state == PageAction.Create)
+            {
+                todoNoteDataHelper.AddNote(viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
+            }
+            else
+            {
+                todoNoteDataHelper.UpdateNote(viewModel.TodoNote.ID, viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
+            }
+            
             if (Frame.CanGoBack)
             {
                 Frame.GoBack();
@@ -163,12 +185,12 @@ namespace EasyNotes
 
         #endregion
 
-        private void SelectRememberingTime_Click(object sender, RoutedEventArgs e)
-        {
-            FrameworkElement senderElement = sender as FrameworkElement;
-            FlyoutBase flyoutBase = FlyoutBase.GetAttachedFlyout(senderElement);
-            flyoutBase.ShowAt(senderElement);
-        }
+        //private void SelectRememberingTime_Click(object sender, RoutedEventArgs e)
+        //{
+        //    FrameworkElement senderElement = sender as FrameworkElement;
+        //    FlyoutBase flyoutBase = FlyoutBase.GetAttachedFlyout(senderElement);
+        //    flyoutBase.ShowAt(senderElement);
+        //}
 
         private void CalendarAppBarButton_Click(object sender, RoutedEventArgs e)
         {

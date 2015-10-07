@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace EasyNotes.Data.Database
 {
-    interface IDatabaseHelper
+    interface INoteManager
     {
         //void AddNote(BaseNote note);
         ObservableCollection<BaseNote> GetAllNotes();

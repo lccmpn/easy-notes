@@ -11,13 +11,18 @@ namespace EasyNotes.Data.Model
     public class BaseNote : BaseModel
     {
         private string title;
+        public ScheduledNotification ScheduledNotification {get; set;}
 
-        protected BaseNote() : base() { }
-        
-        public BaseNote(long id, string title) : base(id)
+        protected BaseNote() : base() {
+            this.ScheduledNotification = null;
+        }
+
+        public BaseNote(long id, string title, ScheduledNotification scheduledNotification)
+            : base(id)
         {
             this.ID = id;
             this.title = title;
+            this.ScheduledNotification = scheduledNotification;
         }
 
         public string Title
@@ -38,7 +43,11 @@ namespace EasyNotes.Data.Model
 
         public override string ToString()
         {
-            return base.ToString() + " [Title]: " + Title;
+            if(ScheduledNotification == null)
+            {
+                return base.ToString() + " [Title]: " + Title;
+            }
+            return base.ToString() + " [Title]: " + Title + " [Date]: " + ScheduledNotification.Date.ToString() + " " + ScheduledNotification.Time.ToString();
         }
     }
 }
