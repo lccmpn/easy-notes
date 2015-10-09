@@ -33,7 +33,7 @@ namespace EasyNotes
 
     public sealed partial class PivotPage : Page
     {
-        INoteManager databaseHelper;
+        INoteManager noteManager;
         private NoteType selectedPivot;
         private Dictionary<int, ListView> listViews = new Dictionary<int, ListView>();
         private readonly NavigationHelper navigationHelper;
@@ -93,8 +93,8 @@ namespace EasyNotes
         /// session. The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            this.databaseHelper = new SimpleNoteManager();
-            viewModels[SIMPLE_NOTE] = databaseHelper.GetAllNotes();
+            this.noteManager = new SimpleNoteManager();
+            viewModels[SIMPLE_NOTE] = noteManager.GetAllNotes();
             SimpleNotesList.DataContext = viewModels[SIMPLE_NOTE];
             this.selectedPivot = NoteType.SimpleNote;
         }
@@ -104,8 +104,8 @@ namespace EasyNotes
         /// </summary>
         private void SecondPivot_Loaded(object sender, RoutedEventArgs e)
         {
-            this.databaseHelper = new DatabaseHelper.TodoNoteDataHelper();
-            viewModels[TODO_NOTE] = databaseHelper.GetAllNotes();
+            this.noteManager = new DatabaseHelper.TodoNoteDataHelper();
+            viewModels[TODO_NOTE] = noteManager.GetAllNotes();
             ToDoNotesList.DataContext = viewModels[TODO_NOTE];
             this.selectedPivot = NoteType.TodoNote;
             
@@ -141,10 +141,10 @@ namespace EasyNotes
             switch (this.pivot.SelectedIndex)
             {
                 case (int)NoteType.SimpleNote:
-                    type = typeof(AddSimpleNotePage);
+                    type = typeof(EditSimpleNote);
                     break;
                 case (int)NoteType.TodoNote:
-                    type = typeof(AddTodoNotePage);
+                    type = typeof(EditTodoNotePage);
                     break;
                 case (int)NoteType.PhotoNote:
                     break;
@@ -172,10 +172,10 @@ namespace EasyNotes
                 switch (this.pivot.SelectedIndex)
                 {
                     case (int)NoteType.SimpleNote:
-                        type = typeof(AddSimpleNotePage);
+                        type = typeof(EditSimpleNote);
                         break;
                     case (int)NoteType.TodoNote:
-                        type = typeof(AddTodoNotePage);
+                        type = typeof(EditTodoNotePage);
                         break;
                     case (int)NoteType.PhotoNote:
                         break;
@@ -239,7 +239,7 @@ namespace EasyNotes
             {
                 foreach (BaseNote note in list.SelectedItems.Reverse())
                 {
-                    databaseHelper.DeleteNote(note.ID);
+                    noteManager.DeleteNote(note.ID);
                     ObservableCollection<BaseNote> notes = (ObservableCollection<BaseNote>)viewModels[selectedPivot.ToString()];
                     notes.Remove(note);
                 }

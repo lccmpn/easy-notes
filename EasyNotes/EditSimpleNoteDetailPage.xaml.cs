@@ -33,7 +33,7 @@ namespace EasyNotes
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class AddSimpleNotePage : Page
+    public sealed partial class EditSimpleNote : Page
     {
         private NavigationHelper navigationHelper;
         //private ObservableDictionary defaultViewModel = new ObservableDictionary();
@@ -42,7 +42,7 @@ namespace EasyNotes
         private SimpleNoteManager simpleNoteManager;
         //private DatabaseHelper.SimpleNoteHelper simpleNoteDataHelper;
 
-        public AddSimpleNotePage()
+        public EditSimpleNote()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);

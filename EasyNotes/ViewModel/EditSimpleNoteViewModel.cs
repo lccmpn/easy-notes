@@ -72,30 +72,6 @@ namespace EasyNotes.ViewModel
             }
         }
 
-        //public DateTimeOffset NotificationDate
-        //{
-        //    get
-        //    {
-        //        if (this.simpleNote.ScheduledNotification == null)
-        //        {
-        //            return DateTimeOffset.Now;
-        //        }
-        //        Debug.WriteLine("Getting date..");
-        //        return this.simpleNote.ScheduledNotification.Date;
-        //    }
-        //    set
-        //    {
-        //        this.simpleNote.ScheduledNotification.Date = value;
-        //        Debug.WriteLine("Date setted to" + this.simpleNote.ScheduledNotification.Date);
-        //        if (this.simpleNote.ScheduledNotification == null)
-        //        {
-        //            this.simpleNote.ScheduledNotification = new ScheduledNotification();
-        //        }
-
-        //        OnPropertyChanged("NotificationDate");
-        //    }
-        //}
-
         public DateTimeOffset NotificationDate
         {
             get
@@ -108,7 +84,6 @@ namespace EasyNotes.ViewModel
             }
             set
             {
-                Debug.WriteLine("Setting date");
                 if (this.simpleNote.ScheduledNotification == null)
                 {
                     this.simpleNote.ScheduledNotification = new ScheduledNotification();
@@ -136,7 +111,6 @@ namespace EasyNotes.ViewModel
                     this.simpleNote.ScheduledNotification = new ScheduledNotification();
                 }
                 this.simpleNote.ScheduledNotification.Time = value;
-                Debug.WriteLine("Setting time" + this.simpleNote.ScheduledNotification.Time);
                 OnPropertyChanged("NotificationTime");
             }
         }
@@ -153,6 +127,5 @@ namespace EasyNotes.ViewModel
         {
             return simpleNote.ToString();
         }
-
     }
 }

@@ -322,7 +322,7 @@ namespace EasyNotes.Database
             {
                 ISQLiteStatement statement = dbConn.Prepare(DELETE_TODO_NOTE_CONTENT);
                 TodoNote todoNote = (TodoNote)GetNoteById(id);
-                foreach (TodoNote.ToDoEntry entry in todoNote.TodoEntries)
+                foreach (TodoNote.TodoEntry entry in todoNote.TodoEntries)
                 {
                     statement.Bind(1, entry.ID);
                     statement.Step();
@@ -334,13 +334,13 @@ namespace EasyNotes.Database
                 statement.Step();
             }
 
-            public void AddNote(string title, ObservableCollection<TodoNote.ToDoEntry> entries){
+            public void AddNote(string title, ObservableCollection<TodoNote.TodoEntry> entries){
                 ISQLiteStatement statement = dbConn.Prepare(INSERT_TODO_NOTE);
                 statement.Bind(1, title);
                 statement.Bind(2, TimeUtil.GetStringTimestamp());
                 statement.Step();
                 
-                foreach(TodoNote.ToDoEntry entry in entries){
+                foreach(TodoNote.TodoEntry entry in entries){
                     statement = dbConn.Prepare(INSERT_TODO_NOTE_CONTENT);
                     statement.Bind(1, entry.Content);
                     int done = ConvertBoolToInt(entry.IsDone);
@@ -356,7 +356,7 @@ namespace EasyNotes.Database
                 }
             }
 
-            public void UpdateNote(long id, string title, ObservableCollection<TodoNote.ToDoEntry> TodoEntries)
+            public void UpdateNote(long id, string title, ObservableCollection<TodoNote.TodoEntry> TodoEntries)
             {
                 string timeStamp = TimeUtil.GetStringTimestamp();
                 ISQLiteStatement statement = dbConn.Prepare(UPDATE_TODO_NOTE);
@@ -366,7 +366,7 @@ namespace EasyNotes.Database
                 statement.Step();
                 TodoNote todoNote = (TodoNote)GetNoteById(id);
                 // Delete all todo note contents
-                foreach (TodoNote.ToDoEntry entry in ((TodoNote)GetNoteById(id)).TodoEntries)
+                foreach (TodoNote.TodoEntry entry in ((TodoNote)GetNoteById(id)).TodoEntries)
                 {
                     statement.Reset();
                     statement.ClearBindings();
@@ -375,7 +375,7 @@ namespace EasyNotes.Database
                     statement.Step();
                 }
                 // Add all todo note new contents 
-                foreach (TodoNote.ToDoEntry entry in TodoEntries){
+                foreach (TodoNote.TodoEntry entry in TodoEntries){
                     statement.Reset();
                     statement.ClearBindings();
                     statement = dbConn.Prepare(INSERT_TODO_NOTE_CONTENT);
@@ -393,13 +393,13 @@ namespace EasyNotes.Database
                 statement.Bind(1, id);
                 string title = "";
                 long noteId = 0;
-                ObservableCollection<TodoNote.ToDoEntry> entries = new ObservableCollection<TodoNote.ToDoEntry>();
+                ObservableCollection<TodoNote.TodoEntry> entries = new ObservableCollection<TodoNote.TodoEntry>();
                 while (statement.Step() == SQLiteResult.ROW)
                 {
                     noteId = (long)statement[0];
                     title = (string) statement[1];
                     bool isDone = (long)statement[4] == 0 ? false : true;
-                    entries.Add(new TodoNote.ToDoEntry((long)statement[2], (string)statement[3], isDone));
+                    entries.Add(new TodoNote.TodoEntry((long)statement[2], (string)statement[3], isDone));
                 }
                 return new TodoNote(noteId, title, null, entries);
             }

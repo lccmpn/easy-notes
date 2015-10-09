@@ -11,8 +11,8 @@ namespace EasyNotes.Data.Model
 {
     public class TodoNote : BaseNote
     {
-        private ObservableCollection<ToDoEntry> todoEntries = new ObservableCollection<ToDoEntry>();
-        public ObservableCollection<ToDoEntry> TodoEntries
+        private ObservableCollection<TodoEntry> todoEntries = new ObservableCollection<TodoEntry>();
+        public ObservableCollection<TodoEntry> TodoEntries
         {
             get
             {
@@ -21,11 +21,10 @@ namespace EasyNotes.Data.Model
             set
             {
                 this.todoEntries = value;
-                base.OnPropertyChanged("TodoEntries");
             }
         }
 
-        public TodoNote(long id, string title, ScheduledNotification notificationDateTime, ObservableCollection<ToDoEntry> toDoEntries)
+        public TodoNote(long id, string title, ScheduledNotification notificationDateTime, ObservableCollection<TodoEntry> toDoEntries)
             : base(id, title, notificationDateTime)
         {
             this.todoEntries = toDoEntries;
@@ -39,20 +38,34 @@ namespace EasyNotes.Data.Model
         public override string ToString()
         {
             string entries = "";
-            foreach(ToDoEntry entry in todoEntries){
+            foreach(TodoEntry entry in todoEntries){
                 entries = entries + entry.ToString();
             }
             return base.ToString() + " [Content]: " + todoEntries.ToString();
         }
 
         public void AddEntry(string content, bool isDone){
-            TodoEntries.Add(new ToDoEntry(content, isDone));
+            TodoEntries.Add(new TodoEntry(content, isDone));
         }
 
-        public class ToDoEntry : BaseModel
+        public class TodoEntry : BaseModel
         {
             private string content;
             private bool isDone;
+
+            public TodoEntry(long id, string content, bool isDone)
+                : base(id)
+            {
+                this.ID = id;
+                this.Content = content;
+                this.IsDone = isDone;
+            }
+
+            public TodoEntry(string content, bool isDone)
+            {
+                this.Content = content;
+                this.IsDone = isDone;
+            }
 
             public string Content
             {
@@ -65,7 +78,9 @@ namespace EasyNotes.Data.Model
                     this.content = value;
                     OnPropertyChanged("Content");
                 }
+                
             }
+
             public bool IsDone { 
                 get
                 {
@@ -76,21 +91,9 @@ namespace EasyNotes.Data.Model
                     this.isDone = value;
                     OnPropertyChanged("IsDone");
                 }
+                
+
             }
-
-            public ToDoEntry(string content, bool isDone)
-            {
-                this.Content = content;
-                this.IsDone = isDone;
-            } 
-
-            public ToDoEntry(long id, string content, bool isDone)
-                : base(id)
-            {
-                this.ID = id;
-                this.Content = content;
-                this.IsDone = isDone;
-            } 
             
             public override string ToString()
             {

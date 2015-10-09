@@ -86,7 +86,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AddTodoNotePage.xaml">
+    <Page Include="EditTodoNotePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -104,8 +104,8 @@
     <Compile Include="EditSimpleNoteDetailPage.xaml.cs">
       <DependentUpon>EditSimpleNoteDetailPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AddTodoNotePage.xaml.cs">
-      <DependentUpon>AddTodoNotePage.xaml</DependentUpon>
+    <Compile Include="EditTodoNotePage.xaml.cs">
+      <DependentUpon>EditTodoNotePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>

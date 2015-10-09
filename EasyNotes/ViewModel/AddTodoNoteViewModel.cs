@@ -8,21 +8,21 @@ using System.Threading.Tasks;
 
 namespace EasyNotes.ViewModel
 {
-    public class AddTodoNoteViewModel : BaseViewModel
-    {
-        public TodoNote TodoNote { get; set; }
+    //public class AddTodoNoteViewModel : BaseViewModel
+    //{
+    //    public TodoNote TodoNote { get; set; }
 
-        public AddTodoNoteViewModel()
-        {
-            ObservableCollection<TodoNote.ToDoEntry> entries = new ObservableCollection<TodoNote.ToDoEntry>();
-            TodoNote = new TodoNote();
-        }
+    //    public AddTodoNoteViewModel()
+    //    {
+    //        ObservableCollection<TodoNote.TodoEntry> entries = new ObservableCollection<TodoNote.TodoEntry>();
+    //        TodoNote = new TodoNote();
+    //    }
 
-        public AddTodoNoteViewModel(TodoNote todoNote)
-        {
-            ObservableCollection<TodoNote.ToDoEntry> entries = new ObservableCollection<TodoNote.ToDoEntry>();
-            TodoNote = todoNote;
-        }
+    //    public AddTodoNoteViewModel(TodoNote todoNote)
+    //    {
+    //        ObservableCollection<TodoNote.TodoEntry> entries = new ObservableCollection<TodoNote.TodoEntry>();
+    //        TodoNote = todoNote;
+    //    }
 
-    }
+    //}
 }

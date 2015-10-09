@@ -32,15 +32,15 @@ namespace EasyNotes
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class AddTodoNotePage : Page
+    public sealed partial class EditTodoNotePage : Page
     {
         private PageAction state;
         private NavigationHelper navigationHelper;
-        private AddTodoNoteViewModel viewModel;
+        private EditTodoNoteViewModel viewModel;
         private DatabaseHelper.TodoNoteDataHelper todoNoteDataHelper = new DatabaseHelper.TodoNoteDataHelper();
         private const string  EMPTY_STRING = "";
 
-        public AddTodoNotePage()
+        public EditTodoNotePage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
@@ -73,17 +73,17 @@ namespace EasyNotes
             if (e.NavigationParameter != null)
             {
                 long noteID = (long)e.NavigationParameter;
-                viewModel = new AddTodoNoteViewModel((TodoNote)todoNoteDataHelper.GetNoteById(noteID));
+                viewModel = new EditTodoNoteViewModel((TodoNote)todoNoteDataHelper.GetNoteById(noteID));
                 state = PageAction.Update;
             }
             else
             {
-                viewModel = new AddTodoNoteViewModel();
-                viewModel.TodoNote.AddEntry(EMPTY_STRING, false);
+                viewModel = new EditTodoNoteViewModel();
+                viewModel.AddEntry(EMPTY_STRING, false);
                 state = PageAction.Create;
             }
-            this.DataContext = viewModel.TodoNote;
-            TodoNotesList.DataContext = viewModel.TodoNote.TodoEntries;
+            this.DataContext = viewModel;
+            TodoNotesList.DataContext = viewModel.TodoEntries;
         }
 
         /// <summary>
@@ -103,22 +103,22 @@ namespace EasyNotes
 
             
             // TODO check if all TodoEntries are empty
-            if (viewModel.TodoNote.TodoEntries.Count == 0)
+            if (viewModel.TodoEntries.Count == 0)
             {
                 string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
                 MessageDialog msgbox = new MessageDialog(alertMessage);
                 await msgbox.ShowAsync();
                 return;
             }
-            if (string.IsNullOrEmpty(viewModel.TodoNote.Title))
+            if (string.IsNullOrEmpty(viewModel.Title))
             {
-                viewModel.TodoNote.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
+                viewModel.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
             }
-            for (int i = viewModel.TodoNote.TodoEntries.Count - 1; i >= 0; i--)
+            for (int i = viewModel.TodoEntries.Count - 1; i >= 0; i--)
             {
-                if (string.IsNullOrEmpty(viewModel.TodoNote.TodoEntries[i].Content))
+                if (string.IsNullOrEmpty(viewModel.TodoEntries[i].Content))
                 {
-                    viewModel.TodoNote.TodoEntries.Remove(viewModel.TodoNote.TodoEntries[i]);
+                    viewModel.TodoEntries.Remove(viewModel.TodoEntries[i]);
                 }
             }
             if (RememberNoteGrid.Visibility == Visibility.Visible)
@@ -134,16 +134,16 @@ namespace EasyNotes
                     await msgbox.ShowAsync();
                     return;
                 }
-                XmlDocument notification = NotificationBuilder.BuildNoTitleNotification(viewModel.TodoNote.Title);
+                XmlDocument notification = NotificationBuilder.BuildNoTitleNotification(viewModel.Title);
                 NotificationScheduler.ScheduleNotification(notification, date);
             }
             if (state == PageAction.Create)
             {
-                todoNoteDataHelper.AddNote(viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
+                todoNoteDataHelper.AddNote(viewModel.Title, viewModel.TodoEntries);
             }
             else
             {
-                todoNoteDataHelper.UpdateNote(viewModel.TodoNote.ID, viewModel.TodoNote.Title, viewModel.TodoNote.TodoEntries);
+                todoNoteDataHelper.UpdateNote(viewModel.Id, viewModel.Title, viewModel.TodoEntries);
             }
             
             if (Frame.CanGoBack)
@@ -154,8 +154,8 @@ namespace EasyNotes
 
         private void AddAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.TodoNote.AddEntry(EMPTY_STRING, false);
-            TodoNotesList.ScrollIntoView(viewModel.TodoNote.TodoEntries.ElementAt(viewModel.TodoNote.TodoEntries.Count - 1), ScrollIntoViewAlignment.Leading);
+            viewModel.AddEntry(EMPTY_STRING, false);
+            TodoNotesList.ScrollIntoView(viewModel.TodoEntries.ElementAt(viewModel.TodoEntries.Count - 1), ScrollIntoViewAlignment.Leading);
         }
 
         #region NavigationHelper registration
