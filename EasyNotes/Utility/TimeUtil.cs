@@ -10,7 +10,7 @@ namespace EasyNotes.Utility
     {
         private const string ISO8601_STANDARD_FORMAT = "s";
 
-        public static String GetTimestamp()
+        public static String GetStringTimestamp()
         {
             return DateTimeOffset.Now.ToString(ISO8601_STANDARD_FORMAT);
         }

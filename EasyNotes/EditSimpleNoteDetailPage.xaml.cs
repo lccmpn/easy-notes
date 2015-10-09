@@ -89,16 +89,7 @@ namespace EasyNotes
                 Debug.WriteLine(viewModel.ToString());
                 action = PageAction.Update;
                 if(viewModel.IsNotificationDateVisible){
-                    if (viewModel.NotificationDate.Add(viewModel.NotificationTime) < DateTimeOffset.Now)
-                    {
-                        Debug.WriteLine("Notification too old..Deleting");
-                        simpleNoteManager.DeleteNotification(viewModel.ID);
-                        SetNotificationSchedulingVisibile(false);
-                    }
-                    else
-                    {
                         SetNotificationSchedulingVisibile(true);
-                    }
                 }
             }
             else
@@ -164,8 +155,8 @@ namespace EasyNotes
             {
                 DateTime date = (DateTime) RememberingDatePicker.Date.Date;
                 TimeSpan time = (TimeSpan) RememberingTimePicker.Time;
-                date = date.Add(time);
-                if (date < DateTime.Now)
+                DateTimeOffset dateTime = date + time;
+                if (dateTime < DateTime.Now)
                 {
                     // TODO put this string in string resources
                     MessageDialog msgbox = new MessageDialog("Date and hour must be in the future.");
@@ -174,12 +165,11 @@ namespace EasyNotes
                 }
                 if (action == PageAction.Create)
                 {
-                    simpleNoteManager.AddNoteAndNotification(viewModel.Title, viewModel.Content, viewModel.Title, viewModel.NotificationDate.Add(viewModel.NotificationTime));
+                    simpleNoteManager.AddNoteAndNotification(viewModel.Title, viewModel.Content, viewModel.Title, viewModel.NotificationDate.Date + viewModel.NotificationTime);
                 }
                 else
                 {
-                    simpleNoteManager.UpdateNoteAndNotification(viewModel.ID, viewModel.Title, viewModel.Content, viewModel.Title, viewModel.NotificationDate.Add(viewModel.NotificationTime));
-                    Debug.WriteLine("Updating notification");
+                    simpleNoteManager.UpdateNoteAndNotification(viewModel.ID, viewModel.Title, viewModel.Content, viewModel.Title, viewModel.NotificationDate.Date + viewModel.NotificationTime);
                 }
             }
             else
@@ -211,13 +201,13 @@ namespace EasyNotes
 
         private void SetNotificationSchedulingVisibile(bool visible){
             if(visible){           
-                CancelSchedulingAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                CalendarAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                RememberNoteGrid.Visibility = Windows.UI.Xaml.Visibility.Visible;
-            } else{
-                CancelSchedulingAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-                CalendarAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
-                RememberNoteGrid.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+                CancelSchedulingAppBarButton.Visibility = Visibility.Visible;
+                CalendarAppBarButton.Visibility = Visibility.Collapsed;
+                RememberNoteGrid.Visibility = Visibility.Visible;
+            } else {
+                CancelSchedulingAppBarButton.Visibility = Visibility.Collapsed;
+                CalendarAppBarButton.Visibility = Visibility.Visible;
+                RememberNoteGrid.Visibility = Visibility.Collapsed;
             }
         }
 

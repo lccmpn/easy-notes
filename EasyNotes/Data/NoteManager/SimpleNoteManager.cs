@@ -5,6 +5,7 @@ using EasyNotes.Utility;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,9 +19,11 @@ namespace EasyNotes.Data
 
         public void DeleteNote(long id)
         {
+            Debug.WriteLine("Deleting notification");
             ScheduledNotification notification;
             if ((notification = simpleNoteHelper.GetNotificationByNoteId(id)) != null)
             {
+                Debug.WriteLine("Deleting scheduled notification");
                 NotificationScheduler.DeleteScheduledNotification(notification.SchedulingId);
             }
             simpleNoteHelper.DeleteNote(id);
@@ -33,6 +36,7 @@ namespace EasyNotes.Data
 
         public void AddNoteAndNotification(string title, string content, string notificationTitle, DateTimeOffset dateTime)
         {
+            Debug.WriteLine("Data inside AddNoteAndNotification" + dateTime);
             string notificationId = ScheduleNotification(notificationTitle, dateTime);
             simpleNoteHelper.AddNote(title, content, notificationId, dateTime);
         }
@@ -47,6 +51,7 @@ namespace EasyNotes.Data
             SimpleNote simpleNote = (SimpleNote) simpleNoteHelper.GetNoteById(id);
             if (simpleNote.ScheduledNotification != null && simpleNote.ScheduledNotification.Date.Add(simpleNote.ScheduledNotification.Time) < DateTimeOffset.Now)
             {
+                Debug.WriteLine("Notification too old..deleting");
                 this.DeleteNotification(id);
                 simpleNote.ScheduledNotification = null;
             }
@@ -58,9 +63,10 @@ namespace EasyNotes.Data
             ScheduledNotification notification;
             if ((notification = simpleNoteHelper.GetNotificationByNoteId(id)) != null)
             {
+                Debug.WriteLine("Deleting scheduled notification");
                 NotificationScheduler.DeleteScheduledNotification(notification.SchedulingId);
             }
-            simpleNoteHelper.UpdateNote(id, title, content);
+            simpleNoteHelper.UpdateNoteAndDeleteNotification(id, title, content);
         }
 
         public void UpdateNoteAndNotification(long id, string title, string content, string notificationTitle, DateTimeOffset dateTime)
@@ -68,14 +74,15 @@ namespace EasyNotes.Data
             ScheduledNotification notification;
             if ((notification = simpleNoteHelper.GetNotificationByNoteId(id)) != null)
             {
+                Debug.WriteLine("Deleting scheduled notification");
                 NotificationScheduler.DeleteScheduledNotification(notification.SchedulingId);
             }
             string notificationId = ScheduleNotification(notificationTitle, dateTime);
-            simpleNoteHelper.UpdateNote(id, title, content, notificationId, dateTime);
+            simpleNoteHelper.UpdateNoteAndNotification(id, title, content, notificationId, dateTime);
 
         }
 
-        public void DeleteNotification(long noteID)
+        private void DeleteNotification(long noteID)
         {
             ScheduledNotification schedulednotification = simpleNoteHelper.GetNotificationByNoteId(noteID);
             NotificationScheduler.DeleteScheduledNotification(schedulednotification.SchedulingId);

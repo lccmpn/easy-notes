@@ -12,8 +12,6 @@ namespace EasyNotes.ViewModel
     {
         private SimpleNote simpleNote;
         private bool notificationDateVisible;
-        private DateTimeOffset notificationDate;
-        private TimeSpan notificationTime;
 
         public EditSimpleNoteDetailViewModel()
         {
@@ -74,27 +72,50 @@ namespace EasyNotes.ViewModel
             }
         }
 
+        //public DateTimeOffset NotificationDate
+        //{
+        //    get
+        //    {
+        //        if (this.simpleNote.ScheduledNotification == null)
+        //        {
+        //            return DateTimeOffset.Now;
+        //        }
+        //        Debug.WriteLine("Getting date..");
+        //        return this.simpleNote.ScheduledNotification.Date;
+        //    }
+        //    set
+        //    {
+        //        this.simpleNote.ScheduledNotification.Date = value;
+        //        Debug.WriteLine("Date setted to" + this.simpleNote.ScheduledNotification.Date);
+        //        if (this.simpleNote.ScheduledNotification == null)
+        //        {
+        //            this.simpleNote.ScheduledNotification = new ScheduledNotification();
+        //        }
+
+        //        OnPropertyChanged("NotificationDate");
+        //    }
+        //}
+
         public DateTimeOffset NotificationDate
         {
             get
             {
-                if (this.simpleNote.ScheduledNotification == null)
+                if(simpleNote.ScheduledNotification == null)
                 {
-                    return DateTimeOffset.Now;
+                    this.simpleNote.ScheduledNotification = new ScheduledNotification();
                 }
                 return this.simpleNote.ScheduledNotification.Date;
             }
-
             set
             {
+                Debug.WriteLine("Setting date");
                 if (this.simpleNote.ScheduledNotification == null)
                 {
-                    this.simpleNote.ScheduledNotification = new ScheduledNotification(DateTimeOffset.Now);
+                    this.simpleNote.ScheduledNotification = new ScheduledNotification();
                 }
                 this.simpleNote.ScheduledNotification.Date = value;
                 OnPropertyChanged("NotificationDate");
             }
-
         }
 
         public TimeSpan NotificationTime
@@ -103,17 +124,19 @@ namespace EasyNotes.ViewModel
             {
                 if (this.simpleNote.ScheduledNotification == null)
                 {
-                    return DateTime.Now.TimeOfDay;
+                    this.simpleNote.ScheduledNotification = new ScheduledNotification();
                 }
                 return this.simpleNote.ScheduledNotification.Time;
             }
             set
             {
+                
                 if (this.simpleNote.ScheduledNotification == null)
                 {
                     this.simpleNote.ScheduledNotification = new ScheduledNotification();
                 }
                 this.simpleNote.ScheduledNotification.Time = value;
+                Debug.WriteLine("Setting time" + this.simpleNote.ScheduledNotification.Time);
                 OnPropertyChanged("NotificationTime");
             }
         }

@@ -16,7 +16,8 @@ namespace EasyNotes.Data.Model
 
         public ScheduledNotification()
         {
-
+            this.Date = DateTimeOffset.Now.Date;
+            this.Time = DateTimeOffset.Now.TimeOfDay;
         }
 
         public ScheduledNotification(DateTimeOffset date, TimeSpan time)
@@ -36,7 +37,7 @@ namespace EasyNotes.Data.Model
         {
             this.SchedulingId = id;
             this.Date = date.Date;
-            this.Time = date.Offset;
+            this.Time = date.TimeOfDay;
         }
 
         public ScheduledNotification(long dataBaseId, string id, DateTimeOffset date)
@@ -50,7 +51,7 @@ namespace EasyNotes.Data.Model
         public ScheduledNotification(DateTimeOffset date)
         {
             this.Date = date.Date;
-            this.Time = date.Offset;
+            this.Time = date.TimeOfDay;
         }
 
         public override string ToString()

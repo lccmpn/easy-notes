@@ -22,15 +22,16 @@ namespace EasyNotes.Database
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 "TITLE VARCHAR(100)," +
                 "CONTENT VARCHAR(3000)," +
-                "LAST_MODIFIED VARCHAR(23)" +
+                "LAST_MODIFIED VARCHAR(23)," +
+                "NOTIFICATION_ID INTEGER" + 
                 ");";
 
         private const string CREATE_SIMPLE_NOTES_NOTIFICATION_TABLE = "CREATE TABLE IF NOT EXISTS SIMPLENOTESNOTIFICATIONS (" +
-        "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-        "DATE_TIME VARCHAR(23)," +
-        "NOTIFICATION_ID VARCHAR(16) UNIQUE," +
-        "NOTE_ID INTEGER UNIQUE" + 
-        ");";
+                "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                "DATE_TIME VARCHAR(23)," +
+                "NOTIFICATION_ID VARCHAR(16)," +
+                "LAST_MODIFIED VARCHAR(23)" +
+                ");";
 
         private const string CREATE_TODO_NOTES_TABLE = "CREATE TABLE IF NOT EXISTS TODONOTES (" +
                "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
@@ -67,46 +68,80 @@ namespace EasyNotes.Database
             private const string SELECT_ALL_SIMPLE_NOTES = "SELECT * FROM SIMPLENOTES;";
             private const string SELECT_SIMPLE_NOTE_BY_ID = "SELECT * FROM SIMPLENOTES WHERE ID = ?;";
             private const string SELECT_LAST_NOTE_INSERT_ID = "SELECT ID FROM SIMPLENOTES ORDER BY datetime(Last_Modified) DESC LIMIT 1;";
+            private const string SELECT_LAST_NOTIFICATION_INSERT_ID = "SELECT ID FROM SIMPLENOTESNOTIFICATIONS ORDER BY datetime(LAST_MODIFIED) DESC LIMIT 1;";
             private const string SELECT_SIMPLE_NOTE_NOTIFICATION = "SELECT ID, NOTIFICATION_ID, DATE_TIME " +
-        "FROM SIMPLENOTESNOTIFICATIONS WHERE NOTE_ID = ?;";
+                                                                   "FROM SIMPLENOTESNOTIFICATIONS WHERE ID = ?;";
+            private const string SELECT_SIMPLE_NOTE_NOTIFICATION_BY_NOTE_ID = "SELECT SIMPLENOTESNOTIFICATIONS.ID, SIMPLENOTESNOTIFICATIONS.NOTIFICATION_ID, SIMPLENOTESNOTIFICATIONS.DATE_TIME " +
+                                                       "FROM SIMPLENOTESNOTIFICATIONS INNER JOIN SIMPLENOTES ON SIMPLENOTESNOTIFICATIONS.ID = SIMPLENOTES.NOTIFICATION_ID WHERE SIMPLENOTES.ID = ?;";
 
-            private const string INSERT_SIMPLE_NOTE = "INSERT INTO SIMPLENOTES(Title, Content, Last_Modified) VALUES(?, ?, ?);";
-            private const string INSERT_SIMPLE_NOTE_NOTIFICATION = "INSERT INTO SIMPLENOTESNOTIFICATIONS(DATE_TIME, NOTIFICATION_ID, NOTE_ID) VALUES(?, ?, ?);";
+            private const string INSERT_SIMPLE_NOTE = "INSERT INTO SIMPLENOTES(Title, Content, Last_Modified, NOTIFICATION_ID) VALUES(?, ?, ?, ?);";
+            private const string INSERT_SIMPLE_NOTE_NOTIFICATION = "INSERT INTO SIMPLENOTESNOTIFICATIONS(DATE_TIME, NOTIFICATION_ID, LAST_MODIFIED) VALUES(?, ?, ?);";
 
             private const string DELETE_SIMPLE_NOTE = "DELETE FROM SIMPLENOTES WHERE ID = ?;";
-            private const string DELETE_SIMPLE_NOTE_NOTIFICATION = "DELETE FROM SIMPLENOTESNOTIFICATIONS WHERE NOTIFICATION_ID = ?;";
+            private const string DELETE_SIMPLE_NOTE_NOTIFICATION = "DELETE FROM SIMPLENOTESNOTIFICATIONS WHERE ID = ?;";
             private const string DELETE_SIMPLE_NOTE_NOTIFICATION_WITH_NOTE_ID = "DELETE FROM SIMPLENOTESNOTIFICATIONS WHERE NOTE_ID = ?;";
 
-            private const string UPDATE_SIMPLE_NOTE = "UPDATE SIMPLENOTES SET TITLE = ?, CONTENT = ?, LAST_MODIFIED = ? WHERE ID = ?;";
+            private const string UPDATE_SIMPLE_NOTE = "UPDATE SIMPLENOTES SET TITLE = ?, CONTENT = ?, LAST_MODIFIED = ?, NOTIFICATION_ID = ? WHERE ID = ?;";
+            private const string UPDATE_NOTIFICATION = "UPDATE SIMPLENOTESNOTIFICATIONS SET DATE_TIME = ?, NOTIFICATION_ID = ?, LAST_MODIFIED = ? WHERE ID = ?;";
+
 
             public void AddNote(string title, string content)
             {
                 ISQLiteStatement statement = dbConn.Prepare(INSERT_SIMPLE_NOTE);
                 statement.Bind(1, title);
                 statement.Bind(2, content);
-                statement.Bind(3, TimeUtil.GetTimestamp());
+                statement.Bind(3, TimeUtil.GetStringTimestamp());
+                statement.Bind(4, null);
                 statement.Step();
             }
 
-            public void AddNote(string title, string content, string notificationId, DateTimeOffset dateTime)
+            public void AddNote(string title, string content, string schedulingId, DateTimeOffset dateTime)
             {
+                //ISQLiteStatement statement = dbConn.Prepare(INSERT_SIMPLE_NOTE_NOTIFICATION);
+                //statement.Bind(1, TimeUtil.ConvertDateTimeOffsetToString(dateTime));
+                //statement.Bind(2, notificationId);
+                //statement.Bind(3, TimeUtil.GetStringTimestamp());
+                //statement.Step();
+                //statement.Reset();
+                //statement.ClearBindings();
+                //statement = dbConn.Prepare(SELECT_LAST_NOTIFICATION_INSERT_ID);
+                //statement.Step();
+                //long notificationID = (long)statement[0];
+                //statement.Reset();
+                //statement.ClearBindings();
+                long notificationId =  AddNotification(schedulingId, dateTime);
                 ISQLiteStatement statement = dbConn.Prepare(INSERT_SIMPLE_NOTE);
                 statement.Bind(1, title);
                 statement.Bind(2, content);
-                statement.Bind(3, TimeUtil.GetTimestamp());
+                statement.Bind(3, TimeUtil.GetStringTimestamp());
+                statement.Bind(4, notificationId);
                 statement.Step();
-                statement.Reset();
-                statement.ClearBindings();
-                statement = dbConn.Prepare(SELECT_LAST_NOTE_INSERT_ID);
-                statement.Step();
-                long noteID = (long)statement[0];
-                statement.Reset();
-                statement.ClearBindings();
-                statement = dbConn.Prepare(INSERT_SIMPLE_NOTE_NOTIFICATION);
+                //statement.Reset();
+                //statement.ClearBindings();
+                //statement = dbConn.Prepare(SELECT_LAST_NOTE_INSERT_ID);
+                //statement.Step();
+                //long noteID = (long)statement[0];
+                //statement.Reset();
+                //statement.ClearBindings();
+
+            }
+
+            public long AddNotification(string schedulingId, DateTimeOffset dateTime)
+            {
+                ISQLiteStatement statement = dbConn.Prepare(INSERT_SIMPLE_NOTE_NOTIFICATION);
                 statement.Bind(1, TimeUtil.ConvertDateTimeOffsetToString(dateTime));
-                statement.Bind(2, notificationId);
-                statement.Bind(3, noteID);
+                statement.Bind(2, schedulingId);
+                statement.Bind(3, TimeUtil.GetStringTimestamp());
+                Debug.WriteLine(statement.Step());
+                Debug.WriteLine("Last inserted notifcation id: " + GetLastInsertedNotificationId());
+                return GetLastInsertedNotificationId();
+            }
+
+            private long GetLastInsertedNotificationId()
+            {
+                ISQLiteStatement statement = dbConn.Prepare(SELECT_LAST_NOTIFICATION_INSERT_ID);
                 statement.Step();
+                return (long)statement[0];
             }
 
             public ObservableCollection<BaseNote> GetAllNotes()
@@ -123,35 +158,75 @@ namespace EasyNotes.Database
 
             public BaseNote GetNoteById(long id)
             {
-                ScheduledNotification notification = GetNotificationByNoteId(id);
+                Debug.WriteLine("Searching notification with note_id " + id);
+                
                 ISQLiteStatement statement = dbConn.Prepare(SELECT_SIMPLE_NOTE_BY_ID);
                 statement.Bind(1, id);
                 SimpleNote note = null;
                 while (statement.Step() == SQLiteResult.ROW)
                 {
-                    note = new SimpleNote((long)statement[0], (String)statement[1], notification, (String)statement[2]);
+                    note = new SimpleNote((long)statement[0], (String)statement[1], null, (String)statement[2]);
+                    ScheduledNotification notification;
+                    if (statement[4] != null)
+                    {
+                        long notificationId = (long)statement[4];
+                        notification = GetNotificationById((long)statement[4]);
+                        note.ScheduledNotification = notification;
+                    }
                 }
                 return note;
             }
 
-            public ScheduledNotification GetNotificationByNoteId(long id)
+            private ScheduledNotification GetNotificationById(long notificationId)
             {
+
                 ISQLiteStatement statement = dbConn.Prepare(SELECT_SIMPLE_NOTE_NOTIFICATION);
-                statement.Bind(1, id);
+                statement.Bind(1, notificationId);
                 ScheduledNotification notification = null;
                 while (statement.Step() == SQLiteResult.ROW)
                 {
                     string dateTime = (String)statement[2];
+                    Debug.WriteLine("Getting notification from database..");
+                    Debug.WriteLine("Data before parsing " + dateTime);
+                    Debug.WriteLine("Data parsed " + DateTimeOffset.Parse(dateTime));
                     notification = new ScheduledNotification((long)statement[0], (String)statement[1], DateTimeOffset.Parse(dateTime));
+                }
+                if (notification == null)
+                {
+                    Debug.WriteLine("notificaiton not found");
                 }
                 return notification;
             }
 
-            public void DeleteNotification(string id)
+            public ScheduledNotification GetNotificationByNoteId(long noteId)
+            {
+                ISQLiteStatement statement = dbConn.Prepare(SELECT_SIMPLE_NOTE_NOTIFICATION_BY_NOTE_ID);
+                statement.Bind(1, noteId);
+                ScheduledNotification notification = null;
+                while (statement.Step() == SQLiteResult.ROW)
+                {
+                    notification = new ScheduledNotification((long)statement[0], (string)statement[1], DateTimeOffset.Parse((string)statement[2]));
+                }
+                return notification;
+            }
+
+            public void DeleteNotificationByNoteId(string id)
             {
                 ISQLiteStatement statement = dbConn.Prepare(DELETE_SIMPLE_NOTE_NOTIFICATION);
                 statement.Bind(1, id);
                 statement.Step();
+            }
+
+            public void DeleteNotificationByNoteId(long noteId)
+            {
+                ScheduledNotification notification = GetNotificationByNoteId(noteId);
+                if (notification != null)
+                {
+                    Debug.WriteLine("Deleting notification from database");
+                    ISQLiteStatement statment = dbConn.Prepare(DELETE_SIMPLE_NOTE_NOTIFICATION);
+                    statment.Bind(1, notification.DataBaseId);
+                    statment.Step();
+                }
             }
 
             public void DeleteNote(long id)
@@ -164,52 +239,59 @@ namespace EasyNotes.Database
                 DeleteNotificationByNoteId(id);
             }
 
-            public void DeleteNotificationByNoteId(long id)
+            public void UpdateNoteAndDeleteNotification(long id, string title, string content)
             {
-                ISQLiteStatement statement = dbConn.Prepare(DELETE_SIMPLE_NOTE_NOTIFICATION_WITH_NOTE_ID);
-                statement.Bind(1, id);
+                DeleteNotificationByNoteId(id);
+                ISQLiteStatement statement = dbConn.Prepare(UPDATE_SIMPLE_NOTE);
+                statement.Bind(1, title);
+                statement.Bind(2, content);
+                statement.Bind(3, TimeUtil.GetStringTimestamp());
+                statement.Bind(4, null);
+                statement.Bind(5, id);
                 statement.Step();
             }
 
-            public void UpdateNote(long id, string title, string content)
+            private void UpdateNote(long id, string title, string content, long notificationId)
             {
-                ISQLiteStatement statement = null;
-                ScheduledNotification notification = GetNotificationByNoteId(id);
-                if (notification != null)
-                {
-                    statement = dbConn.Prepare(DELETE_SIMPLE_NOTE_NOTIFICATION_WITH_NOTE_ID);
-                    statement.Bind(1, id);
-                    statement.Step();
-                    statement.Reset();
-                    statement.ClearBindings();
-                }
-                statement = dbConn.Prepare(UPDATE_SIMPLE_NOTE);
+                ISQLiteStatement statement = dbConn.Prepare(UPDATE_SIMPLE_NOTE);
                 statement.Bind(1, title);
                 statement.Bind(2, content);
-                statement.Bind(3, TimeUtil.GetTimestamp());
+                statement.Bind(3, TimeUtil.GetStringTimestamp());
+                statement.Bind(4, notificationId);
+                statement.Bind(5, id);
+                statement.Step();
+            }
+
+            private void UpdateNotification(long id, string schedulingId, DateTimeOffset dateTime)
+            {
+                ISQLiteStatement statement = dbConn.Prepare(UPDATE_NOTIFICATION);
+                statement.Bind(1, TimeUtil.ConvertDateTimeOffsetToString(dateTime));
+                Debug.WriteLine("Updating notification: data to string " + TimeUtil.ConvertDateTimeOffsetToString(dateTime));
+                statement.Bind(2, schedulingId);
+                statement.Bind(3, TimeUtil.GetStringTimestamp());
                 statement.Bind(4, id);
                 statement.Step();
             }
 
-            public void UpdateNote(long id, string title, string content, string notificationId, DateTimeOffset dateTime)
+            public void UpdateNoteAndNotification(long noteId, string title, string content, string schedulingId, DateTimeOffset dateTime)
             {
-                ISQLiteStatement statement = null;
-                UpdateNote(id, title, content);
-                ScheduledNotification notification = GetNotificationByNoteId(id);
-                if (notification != null)
+                SimpleNote note = (SimpleNote) GetNoteById(noteId);
+                long notificationId;
+                if (note.ScheduledNotification != null)
                 {
-                    statement = dbConn.Prepare(DELETE_SIMPLE_NOTE_NOTIFICATION);
-                    statement.Bind(1, notification.SchedulingId);
-                    statement.Step();
-                    statement.Reset();
-                    statement.ClearBindings();
+                    Debug.WriteLine("Updating notification with id : " + note.ScheduledNotification.DataBaseId);
+                    UpdateNotification(note.ScheduledNotification.DataBaseId, schedulingId, dateTime);
+                    notificationId = note.ScheduledNotification.DataBaseId;
                 }
-                statement = dbConn.Prepare(INSERT_SIMPLE_NOTE_NOTIFICATION);
-                statement.Bind(1, TimeUtil.ConvertDateTimeOffsetToString(dateTime));
-                statement.Bind(2, notificationId);
-                statement.Bind(3, id);
-                statement.Step();
+                else
+                {
+                    notificationId = AddNotification(schedulingId, dateTime);
+                }
+                UpdateNote(noteId, title, content, notificationId);
             }
+
+
+
         }
 
         public class TodoNoteDataHelper : INoteManager
@@ -255,7 +337,7 @@ namespace EasyNotes.Database
             public void AddNote(string title, ObservableCollection<TodoNote.ToDoEntry> entries){
                 ISQLiteStatement statement = dbConn.Prepare(INSERT_TODO_NOTE);
                 statement.Bind(1, title);
-                statement.Bind(2, TimeUtil.GetTimestamp());
+                statement.Bind(2, TimeUtil.GetStringTimestamp());
                 statement.Step();
                 
                 foreach(TodoNote.ToDoEntry entry in entries){
@@ -267,7 +349,7 @@ namespace EasyNotes.Database
                     stat.Step();
                     long noteID = (long)stat[0];
                     statement.Bind(3, noteID);
-                    statement.Bind(4, TimeUtil.GetTimestamp());
+                    statement.Bind(4, TimeUtil.GetStringTimestamp());
                     statement.Step();
                     statement.Reset();
                     statement.ClearBindings();
@@ -276,7 +358,7 @@ namespace EasyNotes.Database
 
             public void UpdateNote(long id, string title, ObservableCollection<TodoNote.ToDoEntry> TodoEntries)
             {
-                string timeStamp = TimeUtil.GetTimestamp();
+                string timeStamp = TimeUtil.GetStringTimestamp();
                 ISQLiteStatement statement = dbConn.Prepare(UPDATE_TODO_NOTE);
                 statement.Bind(1, title);
                 statement.Bind(2, timeStamp);
