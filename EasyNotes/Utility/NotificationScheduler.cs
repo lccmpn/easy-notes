@@ -14,6 +14,7 @@ namespace EasyNotes.Utility
         public static string ScheduleNotification(XmlDocument toastXml, DateTimeOffset date)
         {
             ToastNotifier toastNotifier = ToastNotificationManager.CreateToastNotifier();
+            Debug.WriteLine("Date " + date);
             ScheduledToastNotification customAlarmScheduledToast = new ScheduledToastNotification(toastXml, date);
             toastNotifier.AddToSchedule(customAlarmScheduledToast);
             return customAlarmScheduledToast.Id;
@@ -21,12 +22,13 @@ namespace EasyNotes.Utility
 
         public static void DeleteScheduledNotification(string id)
         {
-            IReadOnlyList<ScheduledToastNotification> scheduled = ToastNotificationManager.CreateToastNotifier().GetScheduledToastNotifications();
+            ToastNotifier toastNotifier = ToastNotificationManager.CreateToastNotifier();
+            IReadOnlyList<ScheduledToastNotification> scheduled = toastNotifier.GetScheduledToastNotifications();
             foreach (ScheduledToastNotification notify in scheduled)
             {
                 if (notify.Id == id)
                 {
-                    ToastNotificationManager.CreateToastNotifier().RemoveFromSchedule(notify);
+                    toastNotifier.RemoveFromSchedule(notify);
                 }
             }
         }

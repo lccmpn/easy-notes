@@ -11,6 +11,9 @@ namespace EasyNotes.ViewModel
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+
+
+
         protected void OnPropertyChanged(string propertyName)
         {
             if (PropertyChanged != null)

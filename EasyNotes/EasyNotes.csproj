@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\NoteManager\SimpleNoteManager.cs" />
+    <Compile Include="Data\NoteManager\TodoNoteManager.cs" />
     <Compile Include="EditSimpleNoteDetailPage.xaml.cs">
       <DependentUpon>EditSimpleNoteDetailPage.xaml</DependentUpon>
     </Compile>

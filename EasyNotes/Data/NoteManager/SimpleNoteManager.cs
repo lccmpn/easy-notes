@@ -41,7 +41,7 @@ namespace EasyNotes.Data
             simpleNoteHelper.AddNote(title, content, notificationId, dateTime);
         }
 
-        public ObservableCollection<Model.BaseNote> GetAllNotes()
+        public ObservableCollection<BaseNote> GetAllNotes()
         {
             return simpleNoteHelper.GetAllNotes();
         }
@@ -94,6 +94,5 @@ namespace EasyNotes.Data
             XmlDocument notificationStructure = NotificationBuilder.BuildNoTitleNotification(notificationTitle);
             return NotificationScheduler.ScheduleNotification(notificationStructure, dateTime);
         }
-
     }
 }

@@ -24,6 +24,7 @@ using Windows.UI.Notifications;
 using Windows.Data.Xml.Dom;
 using EasyNotes.Data.Model;
 using EasyNotes.Enums;
+using EasyNotes.Data.NoteManager;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkID=390556
 
@@ -37,7 +38,7 @@ namespace EasyNotes
         private PageAction state;
         private NavigationHelper navigationHelper;
         private EditTodoNoteViewModel viewModel;
-        private DatabaseHelper.TodoNoteDataHelper todoNoteDataHelper = new DatabaseHelper.TodoNoteDataHelper();
+        private TodoNoteManager todoNoteDataHelper = new TodoNoteManager();
         private const string  EMPTY_STRING = "";
 
         public EditTodoNotePage()
@@ -74,7 +75,12 @@ namespace EasyNotes
             {
                 long noteID = (long)e.NavigationParameter;
                 viewModel = new EditTodoNoteViewModel((TodoNote)todoNoteDataHelper.GetNoteById(noteID));
+                if (viewModel.IsNotificationDateVisible)
+                {
+                    SetNotificationSchedulingVisibile(true);
+                }
                 state = PageAction.Update;
+
             }
             else
             {
@@ -134,18 +140,26 @@ namespace EasyNotes
                     await msgbox.ShowAsync();
                     return;
                 }
-                XmlDocument notification = NotificationBuilder.BuildNoTitleNotification(viewModel.Title);
-                NotificationScheduler.ScheduleNotification(notification, date);
-            }
-            if (state == PageAction.Create)
-            {
-                todoNoteDataHelper.AddNote(viewModel.Title, viewModel.TodoEntries);
+                if (state == PageAction.Create)
+                {
+                    todoNoteDataHelper.AddNoteAndNotification(viewModel.Title, viewModel.TodoEntries, viewModel.Title, viewModel.NotificationDate.Date + viewModel.NotificationTime);
+                }
+                else
+                {
+                    todoNoteDataHelper.UpdateNoteAndNotification(viewModel.Id, viewModel.Title, viewModel.TodoEntries, viewModel.Title, viewModel.NotificationDate.Date + viewModel.NotificationTime);
+                }
             }
             else
             {
-                todoNoteDataHelper.UpdateNote(viewModel.Id, viewModel.Title, viewModel.TodoEntries);
+                if (state == PageAction.Create)
+                {
+                    todoNoteDataHelper.AddNote(viewModel.Title, viewModel.TodoEntries);
+                }
+                else
+                {
+                    todoNoteDataHelper.UpdateNote(viewModel.Id, viewModel.Title, viewModel.TodoEntries);
+                }
             }
-            
             if (Frame.CanGoBack)
             {
                 Frame.GoBack();
@@ -192,18 +206,30 @@ namespace EasyNotes
         //    flyoutBase.ShowAt(senderElement);
         //}
 
+        private void SetNotificationSchedulingVisibile(bool visible)
+        {
+            if (visible)
+            {
+                CancelSchedulingAppBarButton.Visibility = Visibility.Visible;
+                CalendarAppBarButton.Visibility = Visibility.Collapsed;
+                RememberNoteGrid.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                CancelSchedulingAppBarButton.Visibility = Visibility.Collapsed;
+                CalendarAppBarButton.Visibility = Visibility.Visible;
+                RememberNoteGrid.Visibility = Visibility.Collapsed;
+            }
+        }
+
         private void CalendarAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            CancelSchedulingAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
-            CalendarAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-            RememberNoteGrid.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            SetNotificationSchedulingVisibile(true);
         }
 
         private void CancelSchedulingAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            CancelSchedulingAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-            CalendarAppBarButton.Visibility = Windows.UI.Xaml.Visibility.Visible;
-            RememberNoteGrid.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            SetNotificationSchedulingVisibile(false);
         }
     }
 }

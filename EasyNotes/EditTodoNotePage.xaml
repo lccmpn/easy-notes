@@ -170,8 +170,8 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" FontSize="20" Text="Notify on:" />
                 <Grid Grid.Row="1">
-                    <DatePicker x:Name="RememberingDatePicker" Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,9,0"/>
-                    <TimePicker x:Name="RememberingTimePicker" Grid.Column="1" HorizontalAlignment="Stretch" Margin="9,0,0,0"/>
+                    <DatePicker x:Name="RememberingDatePicker" Date="{Binding Path=NotificationDate, Mode=TwoWay}" Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,9,0"/>
+                    <TimePicker x:Name="RememberingTimePicker" Time="{Binding Path=NotificationTime, Mode=TwoWay}" Grid.Column="1" HorizontalAlignment="Stretch" Margin="9,0,0,0"/>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>

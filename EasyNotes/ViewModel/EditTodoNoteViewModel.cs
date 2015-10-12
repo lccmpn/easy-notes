@@ -26,6 +26,14 @@ namespace EasyNotes.ViewModel
             this.TodoNote = new TodoNote();
         }
 
+        public bool IsNotificationDateVisible
+        {
+            get
+            {
+                return TodoNote.ScheduledNotification != null;
+            }
+        }
+
         public long Id
         {
             get
@@ -52,6 +60,58 @@ namespace EasyNotes.ViewModel
             this.TodoNote.TodoEntries.Add(new TodoNote.TodoEntry(content, isDone));
         }
 
+
+        public DateTimeOffset NotificationDate
+        {
+            get
+            {
+                if (TodoNote.ScheduledNotification == null)
+                {
+                    this.TodoNote.ScheduledNotification = new ScheduledNotification();
+                }
+                return this.TodoNote.ScheduledNotification.Date;
+            }
+            set
+            {
+                if (this.TodoNote.ScheduledNotification == null)
+                {
+                    this.TodoNote.ScheduledNotification = new ScheduledNotification();
+                }
+                this.TodoNote.ScheduledNotification.Date = value;
+                OnPropertyChanged("NotificationDate");
+            }
+        }
+
+        public TimeSpan NotificationTime
+        {
+            get
+            {
+                if (this.TodoNote.ScheduledNotification == null)
+                {
+                    this.TodoNote.ScheduledNotification = new ScheduledNotification();
+                }
+                return this.TodoNote.ScheduledNotification.Time;
+            }
+            set
+            {
+
+                if (this.TodoNote.ScheduledNotification == null)
+                {
+                    this.TodoNote.ScheduledNotification = new ScheduledNotification();
+                }
+                this.TodoNote.ScheduledNotification.Time = value;
+                OnPropertyChanged("NotificationTime");
+            }
+        }
+
+        public string NotificationID
+        {
+            get
+            {
+                return TodoNote.ScheduledNotification.SchedulingId;
+            }
+        }
+
         public ObservableCollection<TodoNote.TodoEntry> TodoEntries
         {
             get
@@ -64,6 +124,5 @@ namespace EasyNotes.ViewModel
                 OnPropertyChanged("TodoEntries");
             }
         }
-       
     }
 }

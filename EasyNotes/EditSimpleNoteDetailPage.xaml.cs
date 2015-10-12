@@ -36,11 +36,9 @@ namespace EasyNotes
     public sealed partial class EditSimpleNote : Page
     {
         private NavigationHelper navigationHelper;
-        //private ObservableDictionary defaultViewModel = new ObservableDictionary();
         private EditSimpleNoteDetailViewModel viewModel;
         private PageAction action;
         private SimpleNoteManager simpleNoteManager;
-        //private DatabaseHelper.SimpleNoteHelper simpleNoteDataHelper;
 
         public EditSimpleNote()
         {
@@ -48,7 +46,6 @@ namespace EasyNotes
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.NavigationHelper_LoadState;
             this.navigationHelper.SaveState += this.NavigationHelper_SaveState;
-            //this.simpleNoteDataHelper = new DatabaseHelper.SimpleNoteHelper();
             this.simpleNoteManager = new SimpleNoteManager();
         }
 
