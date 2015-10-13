@@ -31,7 +31,7 @@
                     IsItemClickEnabled="True"
                     ItemClick="ItemView_ItemClick"
                     ItemsSource="{Binding}"
-                    ContinuumNavigationTransitionInfo.ExitElementContainer="True">
+                    ContinuumNavigationTransitionInfo.ExitElementContainer="True" >
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="0,0,0,9.5">

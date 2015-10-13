@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using EasyNotes.Data.Database;
+using Windows.Storage;
 
 namespace EasyNotes.Database
 {
@@ -26,14 +27,12 @@ namespace EasyNotes.Database
                 "NOTIFICATION_ID INTEGER" +
                 ");";
 
-
         private const string CREATE_TODO_NOTES_TABLE = "CREATE TABLE IF NOT EXISTS TODONOTES (" +
                "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                "TITLE VARCHAR(100)," +
                "LAST_MODIFIED VARCHAR(23)," +
                "NOTIFICATION_ID INTEGER" +
                ");";
-
 
         private const string CREATE_NOTES_NOTIFICATION_TABLE = "CREATE TABLE IF NOT EXISTS NOTIFICATIONS (" +
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
@@ -50,6 +49,16 @@ namespace EasyNotes.Database
                "LAST_MODIFIED VARCHAR(23)," +
                "FOREIGN KEY(NOTE_ID) REFERENCES TODONOTES(ID)" +
                ");";
+
+        private const string CREATE_PHOTO_NOTES_TABLE = "CREATE TABLE IF NOT EXISTS PHOTONOTES (" +
+                "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                "TITLE VARCHAR(100)," +
+                "CONTENT VARCHAR(3000)," +
+                "PHOTO_ADRESS VARCHAR(30)," +
+                "LAST_MODIFIED VARCHAR(23)," +
+                "NOTIFICATION_ID INTEGER" +
+                ");";
+
         #endregion
 
         public static void CreateDatabase()
@@ -64,6 +73,7 @@ namespace EasyNotes.Database
             dbConn.Prepare(CREATE_NOTES_NOTIFICATION_TABLE).Step();
             dbConn.Prepare(CREATE_TODO_NOTES_TABLE).Step();
             dbConn.Prepare(CREATE_TODO_NOTES_CONTENT_TABLE).Step();
+            dbConn.Prepare(CREATE_PHOTO_NOTES_TABLE).Step();
         }
 
         public class NotificationHelper
@@ -188,7 +198,6 @@ namespace EasyNotes.Database
             public BaseNote GetNoteById(long id)
             {
                 Debug.WriteLine("Searching notification with note_id " + id);
-
                 ISQLiteStatement statement = dbConn.Prepare(SELECT_SIMPLE_NOTE_BY_ID);
                 statement.Bind(1, id);
                 SimpleNote note = null;
@@ -535,5 +544,149 @@ namespace EasyNotes.Database
                 return boolean == true ? 1 : 0;
             }
         }
+
+        public class PhotoNoteHelper : INoteManager
+        {
+            private const string SELECT_ALL_PHOTO_NOTES = "SELECT * FROM PHOTONOTES;";
+            private const string SELECT_PHOTO_NOTE_BY_ID = "SELECT * FROM PHOTONOTES WHERE ID = ?;";
+            private const string INSERT_PHOTO_NOTE = "INSERT INTO PHOTONOTES(Title, Content, PHOTO_ADRESS, Last_Modified, NOTIFICATION_ID) VALUES(?, ?, ?, ?, ?);";
+            private const string DELETE_PHOTO_NOTE = "DELETE FROM PHOTONOTES WHERE ID = ?;";
+            private const string SELECT_PHOTO_NOTE_NOTIFICATION_BY_NOTE_ID = "SELECT NOTIFICATIONS.ID, NOTIFICATIONS.NOTIFICATION_ID, NOTIFICATIONS.DATE_TIME " +
+                                                      "FROM NOTIFICATIONS INNER JOIN PHOTONOTES ON NOTIFICATIONS.ID = PHOTONOTES.NOTIFICATION_ID WHERE PHOTONOTES.ID = ?;";
+            private const string UPDATE_PHOTO_NOTE = "UPDATE PHOTONOTES SET TITLE = ?, CONTENT = ?, PHOTO_ADRESS = ?, LAST_MODIFIED = ?, NOTIFICATION_ID = ? WHERE ID = ?;"; 
+
+            public void AddNote(string title, string content, string photoPath)
+            {
+                ISQLiteStatement statement = dbConn.Prepare(INSERT_PHOTO_NOTE);
+                statement.Bind(1, title);
+                statement.Bind(2, content);
+                statement.Bind(3, photoPath);
+                statement.Bind(4, TimeUtil.GetStringTimestamp());
+                statement.Bind(5, null);
+                statement.Step();
+            }
+
+            public void AddNote(string title, string content, string photoPath, string schedulingId, DateTimeOffset dateTime)
+            {
+                long notificationId = NotificationHelper.AddNotification(schedulingId, dateTime);
+                ISQLiteStatement statement = dbConn.Prepare(INSERT_PHOTO_NOTE);
+                statement.Bind(1, title);
+                statement.Bind(2, content);
+                statement.Bind(3, photoPath);
+                statement.Bind(4, TimeUtil.GetStringTimestamp());
+                statement.Bind(5, notificationId);
+                statement.Step();
+            }
+
+            private void UpdateNote(long id, string title, string content, string photoPath)
+            {
+                ISQLiteStatement statement = dbConn.Prepare(UPDATE_PHOTO_NOTE);
+                statement.Bind(1, title);
+                statement.Bind(2, content);
+                statement.Bind(3, photoPath);
+                statement.Bind(4, TimeUtil.GetStringTimestamp());
+                statement.Bind(5, null);
+                statement.Bind(6, id);
+                statement.Step();
+            }
+
+            private void UpdateNote(long id, string title, string content, string photoPath, long notificationId)
+            {
+                ISQLiteStatement statement = dbConn.Prepare(UPDATE_PHOTO_NOTE);
+                statement.Bind(1, title);
+                statement.Bind(2, content);
+                statement.Bind(3, photoPath);
+                statement.Bind(4, TimeUtil.GetStringTimestamp());
+                statement.Bind(5, notificationId);
+                statement.Bind(6, id);
+                statement.Step();
+            }
+
+            public void UpdateNoteAndNotification(long noteId, string title, string content, string photoPath, string schedulingId, DateTimeOffset dateTime)
+            {
+                PhotoNote note = (PhotoNote)GetNoteById(noteId);
+                long notificationId;
+                if (note.ScheduledNotification != null)
+                {
+                    Debug.WriteLine("Updating notification with id : " + note.ScheduledNotification.DataBaseId);
+                    NotificationHelper.UpdateNotification(note.ScheduledNotification.DataBaseId, schedulingId, dateTime);
+                    notificationId = note.ScheduledNotification.DataBaseId;
+                }
+                else
+                {
+                    notificationId = NotificationHelper.AddNotification(schedulingId, dateTime);
+                }
+                UpdateNote(noteId, title, content, photoPath, notificationId);
+            }
+
+            public void UpdateNoteAndDeleteNotification(long noteId, string title, string content, string photoPath)
+            {
+                DeleteNotificationByNoteId(noteId);
+                UpdateNote(noteId, title, content, photoPath);
+            }
+
+            public ObservableCollection<BaseNote> GetAllNotes()
+            {
+                ISQLiteStatement statement = dbConn.Prepare(SELECT_ALL_PHOTO_NOTES);
+                ObservableCollection<BaseNote> result = new ObservableCollection<BaseNote>();
+                while (statement.Step() == SQLiteResult.ROW)
+                {
+                    result.Add(new BaseNote((long)statement[0], (string)statement[1], null));
+                }
+                return result;
+            }
+
+            public BaseNote GetNoteById(long id)
+            {
+                ISQLiteStatement statement = dbConn.Prepare(SELECT_PHOTO_NOTE_BY_ID);
+                statement.Bind(1, id);
+                PhotoNote note = null;
+                while (statement.Step() == SQLiteResult.ROW)
+                {
+                    note = new PhotoNote((long)statement[0], (String)statement[1], null, (String)statement[2], (String)statement[3]);
+                    ScheduledNotification notification;
+                    if (statement[5] != null)
+                    {
+                        long notificationId = (long)statement[5];
+                        notification = NotificationHelper.GetNotificationById(notificationId);
+                        note.ScheduledNotification = notification;
+                    }
+                }
+                return note;
+            }
+
+            public ScheduledNotification GetNotificationByNoteId(long noteId)
+            {
+                ISQLiteStatement statement = dbConn.Prepare(SELECT_PHOTO_NOTE_NOTIFICATION_BY_NOTE_ID);
+                statement.Bind(1, noteId);
+                ScheduledNotification notification = null;
+                while (statement.Step() == SQLiteResult.ROW)
+                {
+                    notification = new ScheduledNotification((long)statement[0], (string)statement[1], DateTimeOffset.Parse((string)statement[2]));
+                }
+                return notification;
+            }
+
+            public void DeleteNote(long id)
+            {
+                ISQLiteStatement statement = dbConn.Prepare(DELETE_PHOTO_NOTE);
+                statement.Bind(1, id);
+                statement.Step();
+                statement.Reset();
+                statement.ClearBindings();
+                DeleteNotificationByNoteId(id);
+            }
+
+            public void DeleteNotificationByNoteId(long noteId)
+            {
+                ScheduledNotification notification = GetNotificationByNoteId(noteId);
+                if (notification != null)
+                {
+                    NotificationHelper.DeleteNotificationById(notification.DataBaseId);
+                }
+            }
+
+        }
+
     }
 }

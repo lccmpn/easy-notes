@@ -24,6 +24,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using EasyNotes.Data.Database;
 using EasyNotes.Data;
+using EasyNotes.Data.NoteManager;
 
 // The Pivot Application template is documented at http://go.microsoft.com/fwlink/?LinkID=391641
 
@@ -104,7 +105,7 @@ namespace EasyNotes
         /// </summary>
         private void SecondPivot_Loaded(object sender, RoutedEventArgs e)
         {
-            this.noteManager = new DatabaseHelper.TodoNoteDataHelper();
+            this.noteManager = new TodoNoteManager();
             viewModels[TODO_NOTE] = noteManager.GetAllNotes();
             ToDoNotesList.DataContext = viewModels[TODO_NOTE];
             this.selectedPivot = NoteType.TodoNote;
@@ -116,7 +117,10 @@ namespace EasyNotes
         /// </summary>
         private void ThirdPivot_Loaded(object sender, RoutedEventArgs e)
         {
-            //PhotoNotesList.ItemsSource = DataManager.GetAllNotes();
+            this.noteManager = new DatabaseHelper.PhotoNoteHelper();
+            viewModels[PHOTO_NOTE] = noteManager.GetAllNotes();
+            PhotoNotesList.DataContext = viewModels[PHOTO_NOTE];
+            this.selectedPivot = NoteType.PhotoNote;
         }
 
         /// <summary>
@@ -147,6 +151,7 @@ namespace EasyNotes
                     type = typeof(EditTodoNotePage);
                     break;
                 case (int)NoteType.PhotoNote:
+                    type = typeof(PhotoPreviewPage);
                     break;
             }
             if (type == null || !Frame.Navigate(type))
@@ -178,6 +183,7 @@ namespace EasyNotes
                         type = typeof(EditTodoNotePage);
                         break;
                     case (int)NoteType.PhotoNote:
+                        type = typeof(EditPhotoNotePage);
                         break;
                 }
                 if (type == null || !Frame.Navigate(type, itemId))

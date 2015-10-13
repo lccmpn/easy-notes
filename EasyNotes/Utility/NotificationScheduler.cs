@@ -33,7 +33,7 @@ namespace EasyNotes.Utility
             }
         }
 
-        public static string ScheduleNotification(string id, XmlDocument toastXml, DateTimeOffset date)
+        public static string UpdateScheduledNotification(string id, XmlDocument toastXml, DateTimeOffset date)
         {
             DeleteScheduledNotification(id);
             return ScheduleNotification(toastXml, date);

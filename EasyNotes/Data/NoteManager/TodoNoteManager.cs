@@ -24,7 +24,6 @@ namespace EasyNotes.Data.NoteManager
 
         public void AddNoteAndNotification(string title, ObservableCollection<TodoNote.TodoEntry> entries, string notificationTitle, DateTimeOffset dateTime)
         {
-            Debug.WriteLine("Data inside AddNoteAndNotification" + dateTime);
             string schedulingId = ScheduleNotification(notificationTitle, dateTime);
             databaseHelper.AddNote(title, entries, schedulingId, dateTime);
         }

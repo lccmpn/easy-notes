@@ -1,0 +1,33 @@
+﻿<Page
+    x:Class="EasyNotes.PhotoPreviewPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:EasyNotes"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid>
+            <CaptureElement x:Name="PhotoPreview" Stretch="UniformToFill" />
+            <Image x:Name="TakenImage" Stretch="UniformToFill" Visibility="Collapsed"></Image>
+        </Grid>
+        <!--<Grid VerticalAlignment="Bottom">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Button Grid.Row="0" x:Name="CaptureButton" Content="capture" HorizontalAlignment="Stretch" Margin="12,0" Click="CaptureButton_Click" />
+            <Button Grid.Row="1" x:Name="SaveButton" Content="save"  HorizontalAlignment="Stretch" Margin="12,0" Click="SaveButton_Click"/>
+        </Grid>-->
+    </Grid>
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton x:Uid="SaveAppBarButton" x:Name="SaveAppBarButton" Icon="Save" Visibility="Collapsed" Click="SaveAppBarButton_Click" />
+            <AppBarButton x:Uid="CapturePhotoAppBarButton" x:Name="CapturePhotoAppBarButton" Icon="Camera" Visibility="Visible" Click="CapturePhotoAppBarButton_Click" />
+            <AppBarButton x:Uid="CaptureNewPhotoAppBarButton" x:Name="CaptureNewPhotoAppBarButton" Icon="Cancel" Visibility="Collapsed" Click="CaptureNewPhotoAppBarButton_Click"/>
+        </CommandBar>
+    </Page.BottomAppBar>
+</Page>
