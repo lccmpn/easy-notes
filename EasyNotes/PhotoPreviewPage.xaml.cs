@@ -63,6 +63,11 @@ namespace EasyNotes
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            if (capturePhotoManager != null)
+            {
+                capturePhotoManager.Dispose();
+            }
+            
             ApplicationView appView = ApplicationView.GetForCurrentView();
             appView.SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
         }

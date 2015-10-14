@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
+using Windows.Phone.UI.Input;
 
 // The Pivot Application template is documented at http://go.microsoft.com/fwlink/?LinkID=391641
 
@@ -37,9 +38,21 @@ namespace EasyNotes
         public App()
         {
             this.InitializeComponent();
-            
             this.Suspending += this.OnSuspending;
             DatabaseHelper.CreateDatabase();
+            HardwareButtons.BackPressed += HardwareButtons_BackPressed;
+        }
+
+        private void HardwareButtons_BackPressed(object sender, BackPressedEventArgs e)
+        {
+            Frame frame = Window.Current.Content as Frame;
+            if(frame == null){
+                return;
+            }
+            if(frame.CanGoBack){
+                frame.GoBack();
+                e.Handled = true;
+            }
         }
 
         /// <summary>

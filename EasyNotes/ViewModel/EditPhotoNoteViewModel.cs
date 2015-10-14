@@ -14,7 +14,9 @@ namespace EasyNotes.ViewModel
 
     class EditPhotoNoteViewModel : BaseViewModel
     {
+        [DataMember]
         private PhotoNote photoNote;
+
         private bool notificationDateVisible;
 
         public EditPhotoNoteViewModel()
@@ -154,6 +156,7 @@ namespace EasyNotes.ViewModel
             }
         }
 
+        [DataMember]
         public string NotificationID
         {
             get

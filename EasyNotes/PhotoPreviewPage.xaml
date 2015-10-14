@@ -11,17 +11,9 @@
     <Grid>
         <Grid>
             <CaptureElement x:Name="PhotoPreview" Stretch="UniformToFill" />
-            <Image x:Name="TakenImage" Stretch="UniformToFill" Visibility="Collapsed"></Image>
+            <Image x:Name="TakenImage" Stretch="UniformToFill" Visibility="Collapsed">
+            </Image>
         </Grid>
-        <!--<Grid VerticalAlignment="Bottom">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-            </Grid.RowDefinitions>
-            <Button Grid.Row="0" x:Name="CaptureButton" Content="capture" HorizontalAlignment="Stretch" Margin="12,0" Click="CaptureButton_Click" />
-            <Button Grid.Row="1" x:Name="SaveButton" Content="save"  HorizontalAlignment="Stretch" Margin="12,0" Click="SaveButton_Click"/>
-        </Grid>-->
     </Grid>
     <Page.BottomAppBar>
         <CommandBar>

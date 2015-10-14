@@ -41,9 +41,7 @@ namespace EasyNotes
         PhotoNoteManager photoNoteManager = new PhotoNoteManager();
         private string photoPath;
         private PageAction action;
-
-        //private MediaCapture capturePhotoManager;
-        //private bool isPreviewing;
+        private const string VIEW_MODEL = "ViewModel";
 
         public EditPhotoNotePage()
         {
@@ -62,15 +60,6 @@ namespace EasyNotes
         }
 
         /// <summary>
-        /// Gets the view model for this <see cref="Page"/>.
-        /// This can be changed to a strongly typed view model.
-        /// </summary>
-        //public ObservableDictionary DefaultViewModel
-        //{
-        //    get { return this.viewModel; }
-        //}
-
-        /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
         /// provided when recreating a page from a prior session.
         /// </summary>
@@ -83,9 +72,8 @@ namespace EasyNotes
         /// session.  The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            if (e.NavigationParameter != null)
+            if (e.NavigationParameter != null && e.PageState == null)
             {
-                Debug.WriteLine("Id passed");
                 long noteID = (long)e.NavigationParameter;
                 viewModel = new EditPhotoNoteViewModel((PhotoNote)photoNoteManager.GetNoteById(noteID));
                 Debug.WriteLine(viewModel.ToString());
@@ -99,16 +87,23 @@ namespace EasyNotes
             {
                 if (e.PageState != null)
                 {
-                    Debug.WriteLine("Restoring state");
-                    EditPhotoNoteViewModel editPhotoNoteViewModel = (EditPhotoNoteViewModel)e.PageState["ViewModel"];
+                    EditPhotoNoteViewModel editPhotoNoteViewModel = (EditPhotoNoteViewModel)e.PageState[VIEW_MODEL];
                     if (editPhotoNoteViewModel != null)
                     {
                         viewModel = editPhotoNoteViewModel;
+                        e.PageState[VIEW_MODEL] = null;
+                    }
+                    if (e.NavigationParameter != null)
+                    {
+                        action = PageAction.Update;
+                    }
+                    else
+                    {
+                        action = PageAction.Create;
                     }
                 }
                 else
                 {
-                    Debug.WriteLine("Creating new note");
                     viewModel = new EditPhotoNoteViewModel();
                 }
             }
@@ -116,17 +111,11 @@ namespace EasyNotes
             Object value = localSettings.Values[PhotoNoteManager.PHOTO_PATH_KEY];
             if (value != null)
             {
-                //if (!string.IsNullOrWhiteSpace(viewModel.PhotoPath))
-                //{
-                //    photoNoteManager.DeleteImageFromLocalFolder(viewModel.PhotoPath);
-                //}
                 Debug.WriteLine(value);
-
                 viewModel.PhotoPath = (string)value;
                 localSettings.Values.Remove(PhotoNoteManager.PHOTO_PATH_KEY);
             }
             this.DataContext = viewModel;
-
         }
 
         /// <summary>
@@ -139,8 +128,7 @@ namespace EasyNotes
         /// serializable state.</param>
         private void NavigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            // Save the ViewModel variable in the page's State dictionary.
-            e.PageState["ViewModel"] = viewModel;
+            e.PageState[VIEW_MODEL] = viewModel;
         }
 
         private void TakePhotoAppBarButton_Click(object sender, RoutedEventArgs e)
@@ -219,6 +207,14 @@ namespace EasyNotes
             SetNotificationSchedulingVisibile(false);
         }
 
+        private void TakenImage_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            if (!Frame.Navigate(typeof(PhotoDetailPage), viewModel.PhotoPath))
+            {
+                throw new Exception(AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "NavigationFailedExceptionMessage"));
+            }
+        }
+
         private void SetNotificationSchedulingVisibile(bool visible)
         {
             if (visible)
@@ -261,14 +257,5 @@ namespace EasyNotes
         }
 
         #endregion
-
-        private void TakenImage_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            if (!Frame.Navigate(typeof(PhotoDetailPage), viewModel.PhotoPath))
-            {
-                throw new Exception(AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "NavigationFailedExceptionMessage"));
-            }
-        }
-
     }
 }
