@@ -39,7 +39,7 @@ namespace EasyNotes
         private NavigationHelper navigationHelper;
         private EditTodoNoteViewModel viewModel;
         private TodoNoteManager todoNoteDataHelper = new TodoNoteManager();
-        private const string  EMPTY_STRING = "";
+        private const string EMPTY_STRING = "";
 
         public EditTodoNotePage()
         {
@@ -104,8 +104,32 @@ namespace EasyNotes
         {
         }
 
-        private void ContentTextBox_Loaded(object sender, RoutedEventArgs e)
+        private void FocusLastTextBox()
         {
+            //if (TodoNotesList.ItemContainerGenerator == null)
+            //{
+            //    throw new Exception("ItemContainerGenerator null");
+            //}
+            var container = TodoNotesList.ContainerFromItem(TodoNotesList.Items[TodoNotesList.Items.Count - 1]);
+            List<Control> controls = AllChildren(container);
+            string name = "ContentTextBox";
+            Control contentBox = controls.First(x => x.Name.Equals(name));
+            contentBox.Focus(FocusState.Keyboard);
+        }
+
+        private List<Control> AllChildren(DependencyObject container)
+        {
+            List<Control> list = new List<Control>();
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(container); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(container, i);
+                if (child is Control)
+                {
+                    list.Add(child as Control);
+                }
+                list.AddRange(AllChildren(child));
+            }
+            return list;
         }
 
         private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
@@ -174,6 +198,7 @@ namespace EasyNotes
             viewModel.AddEntry(EMPTY_STRING, false);
             TodoNotesList.UpdateLayout();
             TodoNotesList.ScrollIntoView(TodoNotesList.Items[viewModel.TodoEntries.Count - 1]);
+            FocusLastTextBox();
         }
 
         #region NavigationHelper registration
