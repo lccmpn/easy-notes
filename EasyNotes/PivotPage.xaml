@@ -30,6 +30,7 @@
                     x:Name="SimpleNotesList"
                     IsItemClickEnabled="True"
                     ItemClick="ItemView_ItemClick"
+                    Loaded="FirstPivot_Loaded"
                     ItemsSource="{Binding}"
                     ContinuumNavigationTransitionInfo.ExitElementContainer="True" >
                     <ListView.ItemTemplate>
@@ -77,8 +78,8 @@
             <!--Pivot item three-->
             <PivotItem
                 x:Uid="PivotItem3"
-                Margin="19,14.5,0,0"
-                Header="third">
+                Margin="19,14.5,0,0" 
+                >
                 <!--Double line list no text wrapping-->
                 <ListView
                     ItemsSource="{Binding}"

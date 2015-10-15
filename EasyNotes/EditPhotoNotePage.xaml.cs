@@ -39,7 +39,6 @@ namespace EasyNotes
         private NavigationHelper navigationHelper;
         private EditPhotoNoteViewModel viewModel = new EditPhotoNoteViewModel();
         PhotoNoteManager photoNoteManager = new PhotoNoteManager();
-        private string photoPath;
         private PageAction action;
         private const string VIEW_MODEL = "ViewModel";
 

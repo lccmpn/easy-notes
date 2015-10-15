@@ -208,6 +208,10 @@ namespace EasyNotes
             }
         }
 
+        private void ContentTextBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            ContentTextBox.Focus(FocusState.Keyboard);
+        }
         //private void DeleteAppBarButton_Click(object sender, RoutedEventArgs e)
         //{
         //    simpleNoteManager.DeleteNote(viewModel.ID);

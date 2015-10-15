@@ -34,7 +34,7 @@ namespace EasyNotes
 
     public sealed partial class PivotPage : Page
     {
-        INoteManager noteManager;
+        List<INoteManager> noteManagers = new List<INoteManager>();
         private NoteType selectedPivot;
         private Dictionary<int, ListView> listViews = new Dictionary<int, ListView>();
         private readonly NavigationHelper navigationHelper;
@@ -55,6 +55,27 @@ namespace EasyNotes
             this.listViews[(int)NoteType.SimpleNote] = SimpleNotesList;
             this.listViews[(int)NoteType.TodoNote] = ToDoNotesList;
             this.listViews[(int)NoteType.PhotoNote] = PhotoNotesList;
+            noteManagers.Add(new SimpleNoteManager());
+            noteManagers.Add(new TodoNoteManager());
+            noteManagers.Add(new PhotoNoteManager());
+        }
+
+        private string ConvertPivotIndexToString(int pivotIndex)
+        {
+            if(pivotIndex == (int)NoteType.SimpleNote){
+                return NoteType.SimpleNote.ToString();
+            }
+            if(pivotIndex == (int)NoteType.TodoNote){
+                return NoteType.TodoNote.ToString();
+            }
+            if (pivotIndex == (int)NoteType.PhotoNote)
+            {
+                return NoteType.PhotoNote.ToString();
+            }
+            else
+            {
+                throw new Exception("Pivot not found");
+            }
         }
 
         public NavigationHelper NavigationHelper
@@ -94,8 +115,12 @@ namespace EasyNotes
         /// session. The state will be null the first time a page is visited.</param>
         private void NavigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            this.noteManager = new SimpleNoteManager();
-            viewModels[SIMPLE_NOTE] = noteManager.GetAllNotes();
+            FirstPivot_Loaded(sender, new RoutedEventArgs());
+        }
+
+        private void FirstPivot_Loaded(object sender, RoutedEventArgs e)
+        {
+            viewModels[SIMPLE_NOTE] = noteManagers[(int)NoteType.SimpleNote].GetAllNotes();
             SimpleNotesList.DataContext = viewModels[SIMPLE_NOTE];
             this.selectedPivot = NoteType.SimpleNote;
         }
@@ -105,10 +130,11 @@ namespace EasyNotes
         /// </summary>
         private void SecondPivot_Loaded(object sender, RoutedEventArgs e)
         {
-            this.noteManager = new TodoNoteManager();
-            viewModels[TODO_NOTE] = noteManager.GetAllNotes();
+            Debug.WriteLine("Second list loaded");
+            viewModels[TODO_NOTE] = noteManagers[(int)NoteType.TodoNote].GetAllNotes();
             ToDoNotesList.DataContext = viewModels[TODO_NOTE];
             this.selectedPivot = NoteType.TodoNote;
+            
             
         }
 
@@ -117,8 +143,8 @@ namespace EasyNotes
         /// </summary>
         private void ThirdPivot_Loaded(object sender, RoutedEventArgs e)
         {
-            this.noteManager = new DatabaseHelper.PhotoNoteHelper();
-            viewModels[PHOTO_NOTE] = noteManager.GetAllNotes();
+            Debug.WriteLine("Third list loaded");
+            viewModels[PHOTO_NOTE] = noteManagers[(int)NoteType.PhotoNote].GetAllNotes();
             PhotoNotesList.DataContext = viewModels[PHOTO_NOTE];
             this.selectedPivot = NoteType.PhotoNote;
         }
@@ -162,9 +188,7 @@ namespace EasyNotes
                 UnsetMultipleSelection();
             }
             //// Scroll the new item into view.
-            //var container = this.pivot.ContainerFromIndex(this.pivot.SelectedIndex) as ContentControl;
-            //var listView = container.ContentTemplateRoot as ListView;
-            //listView.ScrollIntoView(newItem, ScrollIntoViewAlignment.Leading);
+
         }
 
         /// <summary>
@@ -241,12 +265,13 @@ namespace EasyNotes
         private void DeleteAppBarButton_Click(object sender, RoutedEventArgs e)
         {   
             ListView list = listViews[this.pivot.SelectedIndex];
+            Debug.WriteLine("pivot " + this.pivot.SelectedIndex);
             if (list.SelectedItems.Count > 0)
             {
                 foreach (BaseNote note in list.SelectedItems.Reverse())
                 {
-                    noteManager.DeleteNote(note.ID);
-                    ObservableCollection<BaseNote> notes = (ObservableCollection<BaseNote>)viewModels[selectedPivot.ToString()];
+                    noteManagers[this.pivot.SelectedIndex].DeleteNote(note.ID);
+                    ObservableCollection<BaseNote> notes = (ObservableCollection<BaseNote>)viewModels[ConvertPivotIndexToString(pivot.SelectedIndex)];
                     notes.Remove(note);
                 }
                 UnsetMultipleSelection();
@@ -256,7 +281,7 @@ namespace EasyNotes
         private void SetMultipleSelection()
         {
             ListView list = listViews[this.pivot.SelectedIndex];
-            if (((ObservableCollection<BaseNote>)viewModels[selectedPivot.ToString()]).Count > 0 && !IsMultipleSelectionenable())
+            if (((ObservableCollection<BaseNote>)viewModels[ConvertPivotIndexToString(pivot.SelectedIndex)]).Count > 0 && !IsMultipleSelectionenable())
             {
                 Debug.WriteLine("Setting multiple");
                 list.SelectionMode = ListViewSelectionMode.Multiple;
@@ -299,6 +324,8 @@ namespace EasyNotes
             // Add delete button.
             CommandBar.PrimaryCommands.Insert(DELETE_APP_BAR_BUTTON_POSITION, deleteButton);
         }
+
+
 
     }
 }

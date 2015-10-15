@@ -104,10 +104,12 @@ namespace EasyNotes
         {
         }
 
+        private void ContentTextBox_Loaded(object sender, RoutedEventArgs e)
+        {
+        }
+
         private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
         {
-
-            
             // TODO check if all TodoEntries are empty
             if (viewModel.TodoEntries.Count == 0)
             {
@@ -168,8 +170,10 @@ namespace EasyNotes
 
         private void AddAppBarButton_Click(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine(viewModel.TodoEntries.Count - 1);
             viewModel.AddEntry(EMPTY_STRING, false);
-            TodoNotesList.ScrollIntoView(viewModel.TodoEntries.ElementAt(viewModel.TodoEntries.Count - 1), ScrollIntoViewAlignment.Leading);
+            TodoNotesList.UpdateLayout();
+            TodoNotesList.ScrollIntoView(TodoNotesList.Items[viewModel.TodoEntries.Count - 1]);
         }
 
         #region NavigationHelper registration
@@ -231,5 +235,7 @@ namespace EasyNotes
         {
             SetNotificationSchedulingVisibile(false);
         }
+
+
     }
 }

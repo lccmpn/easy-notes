@@ -15,6 +15,7 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Capture;
 using Windows.Media.MediaProperties;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -66,52 +67,11 @@ namespace EasyNotes
             if (capturePhotoManager != null)
             {
                 capturePhotoManager.Dispose();
+                
             }
-            
             ApplicationView appView = ApplicationView.GetForCurrentView();
             appView.SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
         }
-
-        //private async void RotateImage()
-        //{
-        //    string captureFileName = string.Empty;
-        //    ImageEncodingProperties format = ImageEncodingProperties.CreateJpeg();
-        //    //rotate and save the image
-        //    using (var imageStream = new InMemoryRandomAccessStream())
-        //    {
-        //        //generate stream from MediaCapture
-        //        await captureManager.CapturePhotoToStreamAsync(format, imageStream);
-
-        //        //create decoder and encoder
-        //        BitmapDecoder dec = await BitmapDecoder.CreateAsync(imageStream);
-        //        BitmapEncoder enc = await BitmapEncoder.CreateForTranscodingAsync(imageStream, dec);
-
-        //        //roate the image
-        //        enc.BitmapTransform.Rotation = BitmapRotation.Clockwise90Degrees;
-
-        //        //write changes to the image stream
-        //        await enc.FlushAsync();
-
-        //        //save the image
-        //        StorageFolder folder = KnownFolders.SavedPictures;
-        //        StorageFile capturefile = await folder.CreateFileAsync("photo_" + DateTime.Now.Ticks.ToString() + ".jpg", CreationCollisionOption.ReplaceExisting);
-        //        captureFileName = capturefile.Name;
-
-        //        //store stream in file
-        //        using (var fileStream = await capturefile.OpenStreamForWriteAsync())
-        //        {
-        //            try
-        //            {
-        //                //because of using statement stream will be closed automatically after copying finished
-        //                await RandomAccessStream.CopyAsync(imageStream, fileStream.AsOutputStream());
-        //            }
-        //            catch
-        //            {
-
-        //            }
-        //        }
-        //    }
-        //}
 
         private static async Task<DeviceInformation> FindCameraDeviceByPanelAsync(Windows.Devices.Enumeration.Panel desiredPanel)
         {
@@ -167,6 +127,17 @@ namespace EasyNotes
                     ImageEncodingProperties format = ImageEncodingProperties.CreateJpeg();
                     StorageFile capturefile = await ApplicationData.Current.LocalFolder.CreateFileAsync("photo_" + DateTime.Now.Ticks.ToString(), CreationCollisionOption.ReplaceExisting);
                     await capturePhotoManager.CapturePhotoToStorageFileAsync(format, capturefile);
+                    //WriteableBitmap writeableBitmap;
+                    //using (IRandomAccessStream fileStream = await capturefile.OpenAsync(FileAccessMode.Read))
+                    //{
+                    //    BitmapImage bitmapImage = new BitmapImage();
+                    //    await bitmapImage.SetSourceAsync(fileStream);
+
+                    //    writeableBitmap =
+                    //        new WriteableBitmap(bitmapImage.PixelHeight, bitmapImage.PixelWidth);
+                    //    fileStream.Seek(0);
+                    //    await writeableBitmap.SetSourceAsync(fileStream);
+                    //}
                     BitmapImage photoTaken = new BitmapImage(new Uri(capturefile.Path));
                     photoTakenPath = capturefile.Path;
                     PhotoPreview.Source = null;
@@ -191,7 +162,7 @@ namespace EasyNotes
 
         private void SaveAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            capturePhotoManager.Dispose();
+            
             ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
             localSettings.Values[PhotoNoteManager.PHOTO_PATH_KEY] = photoTakenPath;
             if (action == PageAction.Update)

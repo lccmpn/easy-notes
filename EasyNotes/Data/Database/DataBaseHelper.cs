@@ -547,13 +547,15 @@ namespace EasyNotes.Database
 
         public class PhotoNoteHelper : INoteManager
         {
+            #region Query strings
             private const string SELECT_ALL_PHOTO_NOTES = "SELECT * FROM PHOTONOTES;";
             private const string SELECT_PHOTO_NOTE_BY_ID = "SELECT * FROM PHOTONOTES WHERE ID = ?;";
             private const string INSERT_PHOTO_NOTE = "INSERT INTO PHOTONOTES(Title, Content, PHOTO_ADRESS, Last_Modified, NOTIFICATION_ID) VALUES(?, ?, ?, ?, ?);";
             private const string DELETE_PHOTO_NOTE = "DELETE FROM PHOTONOTES WHERE ID = ?;";
             private const string SELECT_PHOTO_NOTE_NOTIFICATION_BY_NOTE_ID = "SELECT NOTIFICATIONS.ID, NOTIFICATIONS.NOTIFICATION_ID, NOTIFICATIONS.DATE_TIME " +
                                                       "FROM NOTIFICATIONS INNER JOIN PHOTONOTES ON NOTIFICATIONS.ID = PHOTONOTES.NOTIFICATION_ID WHERE PHOTONOTES.ID = ?;";
-            private const string UPDATE_PHOTO_NOTE = "UPDATE PHOTONOTES SET TITLE = ?, CONTENT = ?, PHOTO_ADRESS = ?, LAST_MODIFIED = ?, NOTIFICATION_ID = ? WHERE ID = ?;"; 
+            private const string UPDATE_PHOTO_NOTE = "UPDATE PHOTONOTES SET TITLE = ?, CONTENT = ?, PHOTO_ADRESS = ?, LAST_MODIFIED = ?, NOTIFICATION_ID = ? WHERE ID = ?;";
+            #endregion
 
             public void AddNote(string title, string content, string photoPath)
             {
@@ -687,6 +689,5 @@ namespace EasyNotes.Database
             }
 
         }
-
     }
 }

@@ -147,6 +147,8 @@
                                       IsChecked="{Binding Path=IsDone, Mode=TwoWay}"/>
                                 <TextBox
                                 Grid.Column="1"
+                                    x:Uid="Content"
+                                    x:Name="ContentTextBox"
                                     Text="{Binding Path=Content, Mode=TwoWay}"
                                     TextWrapping="Wrap"
                                     HorizontalAlignment="Stretch"
@@ -157,7 +159,8 @@
                                     Background="Black"
                                     BorderBrush="Black"
                                     FontSize="25"
-                                    Margin="0,0,19,0"/>
+                                    Margin="0,0,19,0" 
+                                    Loaded="ContentTextBox_Loaded"/>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>

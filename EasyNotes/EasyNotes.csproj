@@ -109,9 +109,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Model\PhotoNote.cs" />
-    <Compile Include="Data\NoteManager\PhotoNoteManager.cs" />
-    <Compile Include="Data\NoteManager\SimpleNoteManager.cs" />
-    <Compile Include="Data\NoteManager\TodoNoteManager.cs" />
+    <Compile Include="Data\NoteManagers\PhotoNoteManager.cs" />
+    <Compile Include="Data\NoteManagers\SimpleNoteManager.cs" />
+    <Compile Include="Data\NoteManagers\TodoNoteManager.cs" />
     <Compile Include="EditPhotoNotePage.xaml.cs">
       <DependentUpon>EditPhotoNotePage.xaml</DependentUpon>
     </Compile>
@@ -128,7 +128,7 @@
     <Compile Include="Common\ObservableDictionary.cs" />
     <Compile Include="Common\RelayCommand.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
-    <Compile Include="Data\NoteManager\INoteManager.cs" />
+    <Compile Include="Data\NoteManagers\INoteManager.cs" />
     <Compile Include="Data\Model\BaseModel.cs" />
     <Compile Include="Data\Model\BaseNote.cs" />
     <Compile Include="Data\Database\DataBaseHelper.cs" />
