@@ -6,6 +6,8 @@ using System.Collections;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using Windows.UI.Xaml.Media;
+using Windows.UI;
 
 namespace EasyNotes.Data.Model
 {
@@ -56,7 +58,7 @@ namespace EasyNotes.Data.Model
             public TodoEntry(long id, string content, bool isDone)
                 : base(id)
             {
-                this.ID = id;
+                this.Id = id;
                 this.Content = content;
                 this.IsDone = isDone;
             }
@@ -90,9 +92,23 @@ namespace EasyNotes.Data.Model
                 {
                     this.isDone = value;
                     OnPropertyChanged("IsDone");
+                    OnPropertyChanged("Brush");
                 }
-                
+            }
 
+            public SolidColorBrush Brush
+            {
+                get
+                {
+                    if (isDone)
+                    {
+                        return new SolidColorBrush(Colors.Gray);
+                    }
+                    else
+                    {
+                        return new SolidColorBrush(Colors.White);
+                    }
+                }
             }
             
             public override string ToString()

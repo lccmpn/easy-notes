@@ -56,6 +56,11 @@ namespace EasyNotes.Data.NoteManager
             databaseHelper.DeleteNote(id);
         }
 
+        public void DeleteEntry(long id)
+        {
+            databaseHelper.DeleteEntry(id);
+        }
+
         public void UpdateNote(long id, string title, ObservableCollection<TodoNote.TodoEntry> entries)
         {
             ScheduledNotification notification;

@@ -196,7 +196,8 @@ namespace EasyNotes
         /// </summary>
         private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
-                long itemId = ((BaseNote)e.ClickedItem).ID;
+            
+                long itemId = ((BaseNote)e.ClickedItem).Id;
                 Type type = null;
                 switch (this.pivot.SelectedIndex)
                 {
@@ -270,7 +271,7 @@ namespace EasyNotes
             {
                 foreach (BaseNote note in list.SelectedItems.Reverse())
                 {
-                    noteManagers[this.pivot.SelectedIndex].DeleteNote(note.ID);
+                    noteManagers[this.pivot.SelectedIndex].DeleteNote(note.Id);
                     ObservableCollection<BaseNote> notes = (ObservableCollection<BaseNote>)viewModels[ConvertPivotIndexToString(pivot.SelectedIndex)];
                     notes.Remove(note);
                 }

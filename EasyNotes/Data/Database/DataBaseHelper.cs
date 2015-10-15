@@ -334,7 +334,7 @@ namespace EasyNotes.Database
                 TodoNote todoNote = (TodoNote)GetNoteById(id);
                 foreach (TodoNote.TodoEntry entry in todoNote.TodoEntries)
                 {
-                    statement.Bind(1, entry.ID);
+                    statement.Bind(1, entry.Id);
                     statement.Step();
                     statement.Reset();
                     statement.ClearBindings();
@@ -353,6 +353,13 @@ namespace EasyNotes.Database
                     Debug.WriteLine("Deleting notification from database");
                     NotificationHelper.DeleteNotificationById(notification.DataBaseId);
                 }
+            }
+
+            public void DeleteEntry(long entryId)
+            {
+                ISQLiteStatement statement = dbConn.Prepare(DELETE_TODO_NOTE_CONTENT);
+                statement.Bind(1, entryId);
+                statement.Step();
             }
 
             public void AddNote(string title, ObservableCollection<TodoNote.TodoEntry> entries)
@@ -472,7 +479,7 @@ namespace EasyNotes.Database
                     statement.Reset();
                     statement.ClearBindings();
                     statement = dbConn.Prepare(DELETE_TODO_NOTE_CONTENT);
-                    statement.Bind(1, entry.ID);
+                    statement.Bind(1, entry.Id);
                     statement.Step();
                 }
                 // Add all todo note new contents 
@@ -505,7 +512,7 @@ namespace EasyNotes.Database
                     statement.Reset();
                     statement.ClearBindings();
                     statement = dbConn.Prepare(DELETE_TODO_NOTE_CONTENT);
-                    statement.Bind(1, entry.ID);
+                    statement.Bind(1, entry.Id);
                     statement.Step();
                 }
                 // Add all todo note new contents 

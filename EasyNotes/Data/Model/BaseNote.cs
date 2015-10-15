@@ -20,7 +20,7 @@ namespace EasyNotes.Data.Model
         public BaseNote(long id, string title, ScheduledNotification scheduledNotification)
             : base(id)
         {
-            this.ID = id;
+            this.Id = id;
             this.title = title;
             this.ScheduledNotification = scheduledNotification;
         }

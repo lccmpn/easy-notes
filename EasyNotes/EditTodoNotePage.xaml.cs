@@ -57,7 +57,6 @@ namespace EasyNotes
             get { return this.navigationHelper; }
         }
 
-
         /// <summary>
         /// Populates the page with content passed during navigation.  Any saved state is also
         /// provided when recreating a page from a prior session.
@@ -80,7 +79,6 @@ namespace EasyNotes
                     SetNotificationSchedulingVisibile(true);
                 }
                 state = PageAction.Update;
-
             }
             else
             {
@@ -106,10 +104,6 @@ namespace EasyNotes
 
         private void FocusLastTextBox()
         {
-            //if (TodoNotesList.ItemContainerGenerator == null)
-            //{
-            //    throw new Exception("ItemContainerGenerator null");
-            //}
             var container = TodoNotesList.ContainerFromItem(TodoNotesList.Items[TodoNotesList.Items.Count - 1]);
             List<Control> controls = AllChildren(container);
             string name = "ContentTextBox";
@@ -132,19 +126,28 @@ namespace EasyNotes
             return list;
         }
 
+        private void DeleteEntry(TodoNote.TodoEntry entry)
+        {
+            todoNoteDataHelper.DeleteEntry(entry.Id);
+            viewModel.TodoEntries.Remove(entry);
+        }
+
         private async void SaveNoteBarButton_Click(object sender, RoutedEventArgs e)
         {
-            // TODO check if all TodoEntries are empty
-            if (viewModel.TodoEntries.Count == 0)
+            int emptyNoteCount = 0;
+            for (int i = viewModel.TodoEntries.Count - 1; i >= 0; i--)
+            {
+                if (string.IsNullOrEmpty(viewModel.TodoEntries[i].Content))
+                {
+                    emptyNoteCount++;
+                }
+            }
+            if (emptyNoteCount == viewModel.TodoEntries.Count)
             {
                 string alertMessage = AppResourcesLoader.LoadStringResource(StringResources.ERRORS, "EmptyNoteAlert");
                 MessageDialog msgbox = new MessageDialog(alertMessage);
                 await msgbox.ShowAsync();
                 return;
-            }
-            if (string.IsNullOrEmpty(viewModel.Title))
-            {
-                viewModel.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
             }
             for (int i = viewModel.TodoEntries.Count - 1; i >= 0; i--)
             {
@@ -152,6 +155,11 @@ namespace EasyNotes
                 {
                     viewModel.TodoEntries.Remove(viewModel.TodoEntries[i]);
                 }
+            }
+
+            if (string.IsNullOrEmpty(viewModel.Title))
+            {
+                viewModel.Title = AppResourcesLoader.LoadStringResource(StringResources.RESOURCES, "DefaultNoteTitle");
             }
             if (RememberNoteGrid.Visibility == Visibility.Visible)
             {
@@ -194,11 +202,36 @@ namespace EasyNotes
 
         private void AddAppBarButton_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine(viewModel.TodoEntries.Count - 1);
             viewModel.AddEntry(EMPTY_STRING, false);
             TodoNotesList.UpdateLayout();
             TodoNotesList.ScrollIntoView(TodoNotesList.Items[viewModel.TodoEntries.Count - 1]);
             FocusLastTextBox();
+        }
+
+        private void SetNotificationSchedulingVisibile(bool visible)
+        {
+            if (visible)
+            {
+                CancelSchedulingAppBarButton.Visibility = Visibility.Visible;
+                CalendarAppBarButton.Visibility = Visibility.Collapsed;
+                RememberNoteGrid.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                CancelSchedulingAppBarButton.Visibility = Visibility.Collapsed;
+                CalendarAppBarButton.Visibility = Visibility.Visible;
+                RememberNoteGrid.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void CalendarAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            SetNotificationSchedulingVisibile(true);
+        }
+
+        private void CancelSchedulingAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            SetNotificationSchedulingVisibile(false);
         }
 
         #region NavigationHelper registration
@@ -228,39 +261,11 @@ namespace EasyNotes
 
         #endregion
 
-        //private void SelectRememberingTime_Click(object sender, RoutedEventArgs e)
-        //{
-        //    FrameworkElement senderElement = sender as FrameworkElement;
-        //    FlyoutBase flyoutBase = FlyoutBase.GetAttachedFlyout(senderElement);
-        //    flyoutBase.ShowAt(senderElement);
-        //}
-
-        private void SetNotificationSchedulingVisibile(bool visible)
+        private void Image_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            if (visible)
-            {
-                CancelSchedulingAppBarButton.Visibility = Visibility.Visible;
-                CalendarAppBarButton.Visibility = Visibility.Collapsed;
-                RememberNoteGrid.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                CancelSchedulingAppBarButton.Visibility = Visibility.Collapsed;
-                CalendarAppBarButton.Visibility = Visibility.Visible;
-                RememberNoteGrid.Visibility = Visibility.Collapsed;
-            }
+            TodoNote.TodoEntry entry = (sender as Image).DataContext as TodoNote.TodoEntry;
+            DeleteEntry(entry);
         }
-
-        private void CalendarAppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            SetNotificationSchedulingVisibile(true);
-        }
-
-        private void CancelSchedulingAppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            SetNotificationSchedulingVisibile(false);
-        }
-
 
     }
 }

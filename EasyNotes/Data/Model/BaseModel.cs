@@ -9,18 +9,18 @@ namespace EasyNotes.Data.Model
 {
     public class BaseModel : INotifyPropertyChanged
     {
-        public long ID { get; protected set; }
+        public long Id { get; protected set; }
 
         protected BaseModel() { }
 
         protected BaseModel(long id)
         {
-            this.ID = id;
+            this.Id = id;
         }
 
         public override string ToString()
         {
-            return "[ID]: " + this.ID;
+            return "[ID]: " + this.Id;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Media;
 
 namespace EasyNotes.ViewModel
 {
@@ -38,7 +39,7 @@ namespace EasyNotes.ViewModel
         {
             get
             {
-                return this.TodoNote.ID;
+                return this.TodoNote.Id;
             }
         }
 
@@ -59,7 +60,6 @@ namespace EasyNotes.ViewModel
         {
             this.TodoNote.TodoEntries.Add(new TodoNote.TodoEntry(content, isDone));
         }
-
 
         public DateTimeOffset NotificationDate
         {

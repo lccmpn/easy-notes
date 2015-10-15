@@ -27,7 +27,7 @@ namespace EasyNotes.ViewModel
         {
             get
             {
-                return this.simpleNote.ID;
+                return this.simpleNote.Id;
             }
         }
 

@@ -34,7 +34,7 @@ namespace EasyNotes.ViewModel
         {
             get
             {
-                return this.photoNote.ID;
+                return this.photoNote.Id;
             }
         }
 

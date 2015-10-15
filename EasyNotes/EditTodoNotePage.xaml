@@ -113,6 +113,7 @@
             <StackPanel Grid.Row="0" Margin="19,0,19,0">
                 <TextBlock x:Uid="Header" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
                 <TextBox x:Uid="Title" Text="{Binding Path=Title, Mode=TwoWay}" 
+                         x:Name="TitleTextBox"
                      Margin="0,6.5,0,0" 
                      Height="80"
                      FontSize="40"
@@ -127,7 +128,6 @@
             <!--TODO: Content should be placed within the following grid-->
             <Grid Grid.Row="1" x:Name="ContentRoot" Margin="19,9.5,19,0">
                 <ListView
-                    
                     x:Name="TodoNotesList"
                     ItemsSource="{Binding}"
                     ContinuumNavigationTransitionInfo.ExitElementContainer="True">
@@ -142,9 +142,11 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="45"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="0"
                                           x:Name="CheckBox"
+                                          Foreground="{Binding Brush}"
                                       IsChecked="{Binding Path=IsDone, Mode=TwoWay}"/>
                                 <TextBox
                                     Grid.Column="1"
@@ -156,12 +158,16 @@
                                     VerticalAlignment="Center"
                                     Pivot.SlideInAnimationGroup="1"
                                     Style="{StaticResource TextBoxStyle1}"
-                                    Foreground="White"
                                     Background="Black"
+                                    Foreground="{Binding Brush}"
                                     BorderBrush="Black"
                                     FontSize="25"
-                                    Margin="0,0,19,0" 
                                     />
+                                <Image Height="40" 
+                                       Grid.Column="2"
+                                       VerticalAlignment="Center" 
+                                       Width="40" 
+                                       Source="Assets/cancel.png" Tapped="Image_Tapped" />
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -181,7 +187,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                 </Grid>
-                
+
                 <!--<Button Grid.Row="1" x:Name="SelectRememberingTime" Margin="19,0,19,0" Content="When" HorizontalAlignment="Stretch" Click="SelectRememberingTime_Click" >
                     <FlyoutBase.AttachedFlyout>
                         <MenuFlyout>
@@ -201,13 +207,13 @@
             <AppBarButton x:Uid="SaveAppBarButton" x:Name="SaveAppBarButton" Icon="Save" Click="SaveNoteBarButton_Click" />
             <AppBarButton x:Uid="AddAppBarButton" x:Name="AddAppBarButton" Icon="Add" Click="AddAppBarButton_Click" />
             <AppBarButton x:Name="CalendarAppBarButton" Icon="Calendar" Click="CalendarAppBarButton_Click" />
-                <!--<AppBarButton.Flyout>
+            <!--<AppBarButton.Flyout>
                     <DatePickerFlyout x:Name="myDatePickerFlyout" />
                 </AppBarButton.Flyout>-->
-            
+
             <AppBarButton Visibility="Collapsed" x:Name="CancelSchedulingAppBarButton" Icon="Cancel" Click="CancelSchedulingAppBarButton_Click" />
-                          
+
         </CommandBar>
     </Page.BottomAppBar>
-        
+
 </Page>
