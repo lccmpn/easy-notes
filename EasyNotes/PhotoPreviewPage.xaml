@@ -10,8 +10,15 @@
 
     <Grid>
         <Grid>
+            <!--<Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>-->
             <CaptureElement x:Name="PhotoPreview" Stretch="UniformToFill" />
-            <Image x:Name="TakenImage" Stretch="UniformToFill" Visibility="Collapsed">
+            <Image x:Name="TakenImage" Stretch="UniformToFill">
+                <!--<Image.RenderTransform>
+                    <RotateTransform Angle="90" />
+                </Image.RenderTransform>-->
             </Image>
         </Grid>
     </Grid>

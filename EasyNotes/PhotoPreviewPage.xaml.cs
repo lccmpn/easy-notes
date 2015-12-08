@@ -95,18 +95,18 @@ namespace EasyNotes
             }
             capturePhotoManager = new MediaCapture();
             var settings = new MediaCaptureInitializationSettings { VideoDeviceId = cameraDevice.Id };
-            capturePhotoManager = new MediaCapture();
             await capturePhotoManager.InitializeAsync(settings);
             capturePhotoManager.SetPreviewRotation(VideoRotation.Clockwise90Degrees);
             PhotoPreview.Source = null;
             TakenImage.Source = null;
-            PhotoPreview.Visibility = Visibility.Visible;
-            TakenImage.Visibility = Visibility.Collapsed;
             StartPreview();
         }
 
         private async void StartPreview()
         {
+            PhotoPreview.Visibility = Visibility.Visible;
+            TakenImage.Visibility = Visibility.Collapsed;
+            TakenImage.Source = null;
             PhotoPreview.Source = capturePhotoManager;
             await capturePhotoManager.StartPreviewAsync();
             isPreviewing = true;
@@ -127,29 +127,16 @@ namespace EasyNotes
                     ImageEncodingProperties format = ImageEncodingProperties.CreateJpeg();
                     StorageFile capturefile = await ApplicationData.Current.LocalFolder.CreateFileAsync("photo_" + DateTime.Now.Ticks.ToString(), CreationCollisionOption.ReplaceExisting);
                     await capturePhotoManager.CapturePhotoToStorageFileAsync(format, capturefile);
-                    //WriteableBitmap writeableBitmap;
-                    //using (IRandomAccessStream fileStream = await capturefile.OpenAsync(FileAccessMode.Read))
-                    //{
-                    //    BitmapImage bitmapImage = new BitmapImage();
-                    //    await bitmapImage.SetSourceAsync(fileStream);
-
-                    //    writeableBitmap =
-                    //        new WriteableBitmap(bitmapImage.PixelHeight, bitmapImage.PixelWidth);
-                    //    fileStream.Seek(0);
-                    //    await writeableBitmap.SetSourceAsync(fileStream);
-                    //}
+                    //TakenImage.Source = writeableBitmapRotated;
                     BitmapImage photoTaken = new BitmapImage(new Uri(capturefile.Path));
                     photoTakenPath = capturefile.Path;
-                    PhotoPreview.Source = null;
-                    PhotoPreview.Visibility = Visibility.Collapsed;
                     TakenImage.Source = photoTaken;
-                    TakenImage.Visibility = Visibility.Visible;
                     StopPreview();
                 }
                 else
                 {
                     DeletePhoto(photoTakenPath);
-                    InitializePreview();
+                    StartPreview();
                 }
             }
         }
@@ -186,6 +173,8 @@ namespace EasyNotes
             SaveAppBarButton.Visibility = Visibility.Visible;
             CaptureNewPhotoAppBarButton.Visibility = Visibility.Visible;
             CapturePhotoAppBarButton.Visibility = Visibility.Collapsed;
+            TakenImage.Visibility = Visibility.Visible;
+            PhotoPreview.Visibility = Visibility.Collapsed;
             CapturePhoto();
         }
 

@@ -99,6 +99,7 @@ namespace EasyNotes
             {
                 UnsetMultipleSelection();
                 e.Handled = true;
+                return;
             }
         }
 

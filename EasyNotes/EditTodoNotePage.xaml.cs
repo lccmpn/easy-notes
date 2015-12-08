@@ -234,6 +234,12 @@ namespace EasyNotes
             SetNotificationSchedulingVisibile(false);
         }
 
+        private void Image_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            TodoNote.TodoEntry entry = (sender as Image).DataContext as TodoNote.TodoEntry;
+            DeleteEntry(entry);
+        }
+
         #region NavigationHelper registration
 
         /// <summary>
@@ -260,12 +266,6 @@ namespace EasyNotes
         }
 
         #endregion
-
-        private void Image_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            TodoNote.TodoEntry entry = (sender as Image).DataContext as TodoNote.TodoEntry;
-            DeleteEntry(entry);
-        }
 
     }
 }
